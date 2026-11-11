@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레인보우 아틀리에 시안 · 소환 (#22~#27 #39 #40)</title>
+<style>
+:root{--navy:#2e2350;--lav:#8b74e8;--gold:#d9a52b;--cream:#fff8ec;--line:#e2dbf5;--w:1280;--el:#4fd18b;--eld:#17704a}
+@property --p{syntax:'<percentage>';inherits:false;initial-value:0%}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#f3f0fa;color:var(--navy);font-family:"Pretendard","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.45}
+.page{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+.page>h1{font-size:22px;margin:0 0 4px}
+.page>h3{font-size:18px;margin:28px 0 8px}
+.lead{margin:0 0 14px;font-size:14px;color:#5a5180}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:13px}
+.bar button{font:inherit;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #c9bff0;background:#fff;color:var(--navy);cursor:pointer}
+.bar button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ref,.opt{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 18px}
+.opt{cursor:pointer}
+.opt.sel{outline:3px solid var(--lav);outline-offset:2px}
+.opt h2,.ref h2{font-size:17px;margin:0 0 2px}
+.cap{margin:0 0 10px;font-size:14px;color:#4c4374}
+.vp{position:relative;width:100%;overflow:hidden;border-radius:8px;background:#1d1838}
+.scr{position:absolute;left:0;top:0;width:calc(var(--w)*1px);height:720px;transform-origin:0 0;overflow:hidden;font-size:16px}
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.refs figure{margin:0}.refs img{width:100%;display:block;border-radius:8px}.refs figcaption{overflow-wrap:anywhere;font-size:12px;color:#6a6290;margin-top:4px}
+.sb{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr));gap:12px}
+.sb .st{font-size:13px;font-weight:700;margin:6px 0 0;color:#3b3166}
+.sb .st small{display:block;font-weight:400;color:#655c8c}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* 공통 조각 */
+.lib{position:absolute;inset:0;background:url(img/assets_ui_summon_bg.png) center/cover}
+.dim{position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(30,20,70,.15),rgba(18,12,46,.72))}
+.hdr{position:absolute;left:0;right:0;top:0;height:64px;display:flex;align-items:center;gap:14px;padding:0 22px;color:#fff;z-index:5}
+.hdr .back{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:28px;font-weight:700}
+.hdr h4{margin:0;font-size:24px;font-weight:800;letter-spacing:1px}
+.hdr .cur{margin-left:auto;display:flex;gap:12px;font-weight:700}
+.hdr .cur span{display:flex;align-items:center;gap:6px;background:rgba(10,6,30,.35);padding:5px 14px 5px 8px;border-radius:18px}
+.hdr .cur img{width:26px;height:26px}
+.shard{display:inline-block;width:22px;height:34px;clip-path:polygon(50% 0,100% 30%,80% 100%,20% 100%,0 30%);background:conic-gradient(from 200deg,#ff6b8b,#ffb54d,#ffe66b,#6fe39a,#5ec3ff,#8b7bff,#e07bff,#ff6b8b);position:relative;filter:drop-shadow(0 0 6px rgba(255,255,255,.8))}
+.shard::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.9) 50%,transparent 65%);background-size:250% 100%;animation:glint 2.2s linear infinite}
+@keyframes glint{from{background-position:150% 0}to{background-position:-100% 0}}
+.petal{position:absolute;width:14px;height:10px;border-radius:70% 0 70% 0;background:#ffd6e6;opacity:.9;animation:fall linear infinite}
+@keyframes fall{from{transform:translate(0,-40px) rotate(0)}to{transform:translate(-160px,760px) rotate(540deg)}}
+.leaf{position:absolute;width:12px;height:20px;border-radius:0 100% 0 100%;background:linear-gradient(var(--el),#c8ffd9);opacity:.85;animation:fall linear infinite}
+.sweep{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.45) 50%,transparent 60%);background-size:300% 100%;animation:sw 4.5s ease-in-out infinite}
+@keyframes sw{0%,40%{background-position:120% 0}100%{background-position:-120% 0}}
+.hand{position:absolute;width:64px;height:64px;z-index:9;animation:tap 1.1s ease-in-out infinite}
+.hand::before{content:"";position:absolute;left:8px;top:6px;width:30px;height:30px;border-radius:50%;border:4px solid #fff;box-shadow:0 0 12px #fff;animation:ring 1.1s ease-out infinite}
+.hand::after{content:"👆";position:absolute;left:14px;top:18px;font-size:44px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+@keyframes tap{0%,100%{transform:translate(0,0)}50%{transform:translate(-6px,-8px)}}
+@keyframes ring{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.8);opacity:0}}
+.tip{position:absolute;z-index:9;background:#fff;color:var(--navy);font-weight:800;font-size:17px;padding:8px 16px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.3);white-space:nowrap}
+body:not(.st-guide) .guide{display:none!important}
+body.st-guide .pick{display:none!important}
+body.st-guide .dot.guide{display:flex}
+body.st-guide .A .cv.fv{transform:rotate(-1deg) translateX(14px) scale(1.04);box-shadow:0 0 0 4px #ffcc4d,0 0 30px #ffcc4d,0 10px 22px rgba(0,0,0,.45)}
+body.st-guide .A .cv.fv .in{filter:none}
+body.st-guide .B .tab.p{width:170px;margin-left:0}
+body.st-guide .B .tab.f{width:190px;margin-left:-20px}
+body.st-guide .C .dot.fvd{opacity:1}
+body.st-guide .C .dot.fvd i{box-shadow:0 0 0 4px #ffcc4d,0 0 26px #ffcc4d!important}
+
+/* ---------- A 갤러리 ---------- */
+.A .rail{position:absolute;left:26px;top:86px;width:280px;display:flex;flex-direction:column;gap:22px;z-index:3}
+.A .cv{position:relative;height:150px;border-radius:4px;padding:8px;background:linear-gradient(135deg,#f7d98a,#b9862a 40%,#f3d58c 60%,#a3741f);box-shadow:0 10px 22px rgba(0,0,0,.45)}
+.A .cv:nth-child(1){transform:rotate(-2deg)}.A .cv:nth-child(2){transform:rotate(1.5deg)}.A .cv:nth-child(3){transform:rotate(-1deg)}
+.A .cv .in{position:absolute;inset:8px;background-size:cover;background-position:30% 22%;filter:saturate(.75) brightness(.85)}
+.A .cv .pin{position:absolute;left:50%;top:-12px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#c9a0ff 50%,#6a4bb8);box-shadow:0 2px 3px rgba(0,0,0,.4)}
+.A .cv b{position:absolute;left:8px;right:8px;bottom:8px;padding:18px 12px 8px;color:#fff;font-size:19px;font-weight:800;background:linear-gradient(transparent,rgba(16,10,40,.85));text-shadow:0 1px 2px #000}
+.A .cv b small{display:block;font-size:13px;font-weight:600;opacity:.9}
+.A .cv.on{transform:rotate(-2deg) translateX(14px) scale(1.04);box-shadow:0 0 0 4px var(--el),0 0 30px var(--el),0 10px 22px rgba(0,0,0,.45)}
+.A .cv.on .in{filter:none}
+.A .cv.on::after{content:"";position:absolute;right:-26px;top:50%;margin-top:-14px;border:14px solid transparent;border-left-color:var(--el)}
+.A .cv.fv .badge{position:absolute;right:-8px;top:-10px;background:#ffcc4d;color:#5a3a00;font-weight:900;font-size:14px;padding:3px 10px;border-radius:10px;transform:rotate(6deg);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.A .main{position:absolute;left:336px;right:24px;top:80px;height:470px;padding:12px;border-radius:6px;background:linear-gradient(135deg,#fbe7a8,#b98a2c 25%,#f7dc94 50%,#a77822 75%,#f4d896);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.A .main .art{position:absolute;inset:12px;overflow:hidden;background:url(img/assets_cutin_flora_cutin.png) 70% 20%/cover}
+.A .main .wash{position:absolute;left:-40px;top:0;bottom:0;width:58%;background:radial-gradient(ellipse at 20% 55%,rgba(18,70,45,.92),rgba(31,138,85,.65) 45%,transparent 72%);filter:url(#rough)}
+.A .main .tt{position:absolute;left:40px;top:70px;color:#fff;z-index:2}
+.A .main .tt .g{display:inline-flex;gap:8px;align-items:center}
+.A .chip{display:inline-block;font-weight:900;font-size:15px;padding:4px 12px;border-radius:8px;color:#fff;background:var(--eld);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+.A .chip.el{background:#fff;color:var(--eld)}
+.A .main .tt h5{margin:8px 0 0;font-size:92px;line-height:1;font-weight:900;letter-spacing:4px;color:#f2fff6;text-shadow:0 0 18px rgba(79,209,139,.9),3px 4px 0 #134a2f}
+.A .main .tt q{display:block;margin-top:14px;font-size:24px;font-weight:700;quotes:"「" "」"}
+.A .main .tt .r50{margin-top:14px;font-size:16px;font-weight:700;background:rgba(0,0,0,.3);padding:6px 12px;border-radius:10px;display:inline-block}
+.A .main .time{position:absolute;right:26px;top:24px;z-index:2;color:#fff;font-weight:800;background:rgba(10,30,20,.55);padding:6px 14px;border-radius:12px}
+.A .bot{position:absolute;left:336px;right:24px;top:576px;height:120px;display:flex;align-items:center;gap:18px;z-index:3}
+.A .mem{flex:1;color:#fff}
+.A .mem .l{display:flex;justify-content:space-between;font-weight:800;font-size:16px}
+.A .mem .gauge{margin-top:8px;height:16px;border-radius:8px;background:rgba(255,255,255,.18);overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3)}
+.A .mem .gauge i{display:block;height:100%;width:7%;background:linear-gradient(90deg,#b8ffd4,var(--el))}
+.pull{position:relative;height:96px;border:0;color:#fff;font-weight:900;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.A .pull{width:210px;clip-path:polygon(4% 8%,96% 0,100% 88%,2% 100%);background:linear-gradient(160deg,#9a8cff,#6b55d8);font-size:24px}
+.A .pull.ten{width:280px;background:linear-gradient(160deg,#fff1b8,#ffb84d 45%,#f08a3c);color:#4a2400;font-size:30px;clip-path:polygon(3% 0,100% 6%,97% 100%,0 92%)}
+.pull small{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px}
+.pull small img{width:24px;height:24px}
+.sbadge{position:absolute;z-index:4;display:flex;align-items:center;gap:6px;background:#1c1442;color:#fff;font-weight:900;font-size:16px;padding:6px 12px 6px 8px;border-radius:14px;box-shadow:0 0 0 2px #fff,0 0 16px rgba(255,255,255,.7);white-space:nowrap}
+.sbadge .shard{width:18px;height:28px}
+.A .sbadge{right:40px;top:556px;transform:rotate(4deg)}
+.A .g1{position:absolute;inset:12px;background:linear-gradient(160deg,#1d2a63,#3a2a7a);overflow:hidden}
+.A .g1>img{position:absolute;right:60px;top:20px;height:420px}
+.A .g1 .tt{left:40px;top:60px}
+.track{display:flex;align-items:center;gap:0;margin-top:22px}
+.track b{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);font-size:13px;font-weight:800;color:#fff}
+.track b img{width:30px;height:30px}
+.track i{width:40px;height:4px;background:rgba(255,255,255,.35)}
+.track b.big{width:62px;height:62px;background:linear-gradient(160deg,#ffe28a,#ffae3c);color:#4a2400;font-size:15px}
+
+/* ---------- B 출석부 책 ---------- */
+.B .desk{position:absolute;inset:0;background:url(img/assets_ui_summon_standard.png) center/cover;filter:blur(5px) brightness(.45)}
+.B .book{position:absolute;left:170px;right:40px;top:76px;bottom:28px;border-radius:14px;background:#26306b;box-shadow:0 24px 50px rgba(0,0,0,.6),inset 0 0 0 3px #d8b45a}
+.B .pg{position:absolute;top:14px;bottom:14px;background:linear-gradient(90deg,#fbf3df,#fffaf0 80%,#e9dcc0);box-shadow:inset 0 0 30px rgba(140,110,60,.25)}
+.B .pg.l{left:14px;width:calc(50% - 14px);border-radius:8px 2px 2px 8px;background:linear-gradient(90deg,#efe3c6,#fffaf0 20%,#fbf3df 92%,#d9c9a6)}
+.B .pg.r{right:14px;width:calc(50% - 14px);border-radius:2px 8px 8px 2px}
+.B .pg.l .art{position:absolute;inset:26px;background:url(img/assets_cutin_flora_cutin.png) 30% 20%/cover;-webkit-mask:radial-gradient(ellipse 72% 68% at 50% 50%,#000 60%,transparent 74%);mask:radial-gradient(ellipse 72% 68% at 50% 50%,#000 60%,transparent 74%)}
+.B .tabs{position:absolute;left:28px;top:110px;display:flex;flex-direction:column;gap:14px;z-index:3}
+.B .tab{position:relative;width:170px;height:84px;padding:10px 16px;border-radius:12px 0 0 12px;color:#fff;font-weight:900;font-size:19px;box-shadow:-4px 6px 12px rgba(0,0,0,.4)}
+.B .tab small{display:block;font-size:13px;font-weight:600;opacity:.9}
+.B .tab.p{background:linear-gradient(90deg,#17734a,var(--el));width:190px;margin-left:-20px}
+.B .tab.s{background:linear-gradient(90deg,#2b2766,#5b54b0)}
+.B .tab.f{background:linear-gradient(90deg,#b77a12,#f2c04a);color:#3b2400}
+.B .tab::after{content:"";position:absolute;right:-18px;top:0;bottom:0;width:18px;background:inherit;filter:brightness(.8)}
+.B .rp{position:absolute;left:44px;right:40px;top:40px;color:#3b2a14}
+.B .rp .k{font-size:15px;font-weight:800;color:var(--eld);letter-spacing:3px}
+.B .rp h5{margin:4px 0 0;font-size:76px;line-height:1.05;font-weight:900;color:#1b5e3c;font-family:"Nanum Pen Script","Gaegu","Pretendard",sans-serif}
+.B .rp h5::after{content:"";display:block;height:12px;width:240px;margin-top:2px;background:var(--el);opacity:.55;border-radius:6px;transform:rotate(-1.5deg)}
+.B .rp q{display:block;font-size:22px;margin:16px 0 0;font-weight:700;quotes:"「" "」"}
+.B .stamps{display:flex;gap:6px;margin-top:22px;flex-wrap:wrap;width:330px}
+.B .stamps i{width:28px;height:28px;border-radius:50%;border:2px dashed #b9a57c}
+.B .stamps i.on{border:0;background:radial-gradient(circle,#fff 18%,var(--el) 22%,#2a9b62 70%);box-shadow:0 0 6px rgba(79,209,139,.8)}
+.B .stamps em{font-style:normal;font-size:14px;font-weight:800;color:#7a6236;width:100%}
+.B .seals{position:absolute;right:40px;bottom:36px;display:flex;gap:26px;align-items:flex-end}
+.seal{position:relative;border-radius:50%;display:grid;place-items:center;text-align:center;color:#fff;font-weight:900;box-shadow:0 8px 14px rgba(0,0,0,.35),inset 0 -6px 0 rgba(0,0,0,.2)}
+.B .seal.one{width:122px;height:122px;background:radial-gradient(circle at 40% 35%,#9d8cff,#5a44c4);font-size:26px}
+.B .seal.ten{width:168px;height:168px;background:radial-gradient(circle at 40% 35%,#ffd36b,#e07a1f);font-size:36px;color:#4a2400;animation:breathe 2.4s ease-in-out infinite}
+.seal::before{content:"";position:absolute;inset:8px;border-radius:50%;border:3px dashed rgba(255,255,255,.55)}
+.seal small{display:block;font-size:15px}
+@keyframes breathe{50%{transform:scale(1.05) rotate(-3deg)}}
+.B .sbadge{right:20px;bottom:196px;transform:rotate(-6deg)}
+.B .time{position:absolute;right:40px;top:34px;font-weight:800;color:#7a6236}
+
+/* ---------- C 무대 ---------- */
+.C .art{position:absolute;inset:0;background:url(img/assets_cutin_flora_cutin.png) 40% 20%/cover}
+.C .vig{position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,40,28,.85),transparent 30%),linear-gradient(0deg,rgba(14,30,24,.9),transparent 45%)}
+.C .dots{position:absolute;left:26px;top:120px;display:flex;flex-direction:column;gap:26px;z-index:3}
+.C .dot{display:flex;align-items:center;gap:12px;color:#fff;font-weight:800;font-size:17px}
+.C .dot i{width:76px;height:76px;border-radius:50% 50% 50% 8%;background-size:cover;background-position:50% 25%;box-shadow:0 0 0 3px rgba(255,255,255,.6);transform:rotate(-45deg)}
+.C .dot i span{display:block;width:100%;height:100%;border-radius:inherit;transform:rotate(45deg)}
+.C .dot.on i{box-shadow:0 0 0 4px var(--el),0 0 26px var(--el)}
+.C .dot small{display:block;font-size:13px;font-weight:600;opacity:.85}
+.C .dot.off{opacity:.75}
+.C .rib{position:absolute;left:0;bottom:150px;padding:18px 60px 18px 150px;background:linear-gradient(90deg,var(--eld),rgba(31,138,85,.6) 80%,transparent);color:#fff;transform:skewX(-10deg);transform-origin:0 100%}
+.C .rib>div{transform:skewX(10deg)}
+.C .rib h5{margin:0;font-size:68px;line-height:1;font-weight:900;letter-spacing:3px;text-shadow:3px 3px 0 #0f3b25}
+.C .rib q{display:block;font-size:20px;font-weight:700;margin-top:8px;quotes:"「" "」"}
+.C .tag{position:absolute;left:150px;bottom:290px;display:flex;gap:8px}
+.C .tag b{background:#fff;color:var(--eld);font-weight:900;padding:4px 12px;border-radius:8px;font-size:16px}
+.C .pbar{position:absolute;right:30px;bottom:30px;display:flex;gap:14px;align-items:center;padding:12px;border-radius:26px;background:rgba(12,10,32,.55);backdrop-filter:blur(6px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.C .pull{width:180px;height:80px;border-radius:18px;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);font-size:22px}
+.C .pull.ten{width:250px;background:linear-gradient(160deg,#fff,#d9ffe9);color:#145236;font-size:28px;box-shadow:0 0 22px rgba(79,209,139,.8)}
+.C .sbadge{right:46px;bottom:118px}
+.C .mem2{position:absolute;left:150px;bottom:40px;color:#fff;font-weight:800;display:flex;align-items:center;gap:12px}
+.C .mem2 .ring{width:62px;height:62px;border-radius:50%;background:conic-gradient(var(--el) 7%,rgba(255,255,255,.2) 0);display:grid;place-items:center}
+.C .mem2 .ring::before{content:"11";width:48px;height:48px;border-radius:50%;background:#123a28;display:grid;place-items:center}
+.C .time{position:absolute;right:30px;top:80px;color:#fff;font-weight:800;background:rgba(0,0,0,.35);padding:6px 14px;border-radius:12px}
+.C .g2{position:absolute;inset:0;background:linear-gradient(160deg,#1d2a63,#3a2a7a)}
+.C .g2>img{position:absolute;right:120px;top:90px;height:440px}
+
+/* ---------- 흐름 (스토리보드) ---------- */
+.gray{filter:grayscale(1) brightness(.85)}
+.circle{position:absolute;left:50%;top:56%;width:360px;height:120px;margin:-60px 0 0 -180px;border-radius:50%}
+.F1 .circle.hit{box-shadow:0 0 0 4px #fff,0 0 40px #fff,inset 0 0 30px rgba(255,255,255,.6);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px #fff,0 0 70px #fff,inset 0 0 40px rgba(255,255,255,.8)}}
+.fill{position:absolute;left:50%;top:56%;width:360px;height:120px;margin:-60px 0 0 -180px;border-radius:50%;background:conic-gradient(from 0deg,#ff8fb1,#ffd36b,#7fe0a6,#7cc7ff,#a58bff,#ff8fb1);-webkit-mask:conic-gradient(#000 var(--p),transparent 0);mask:conic-gradient(#000 var(--p),transparent 0);animation:fillp 3s linear -2s infinite;opacity:.9;filter:blur(1px)}
+@keyframes fillp{0%{--p:0%}80%,100%{--p:100%}}
+.holdring{position:absolute;width:120px;height:120px;border-radius:50%;background:conic-gradient(#fff var(--p),rgba(255,255,255,.2) 0);-webkit-mask:radial-gradient(circle,transparent 50px,#000 52px);mask:radial-gradient(circle,transparent 50px,#000 52px);animation:fillp 3s linear infinite}
+.brush{position:absolute;width:40px;height:240px;background:url(img/assets_ui_gacha_brush.png) center/contain no-repeat;transform-origin:50% 100%;animation:brush 1.2s ease-in-out infinite}
+@keyframes brush{0%,100%{transform:rotate(28deg) translateX(-60px)}50%{transform:rotate(38deg) translateX(60px)}}
+.say{position:absolute;left:50%;bottom:36px;transform:translateX(-50%);background:rgba(16,10,40,.75);color:#fff;font-weight:800;font-size:22px;padding:12px 28px;border-radius:26px;white-space:nowrap}
+.skip{position:absolute;right:24px;top:22px;z-index:8;color:#fff;font-weight:800;font-size:17px;padding:8px 18px;border-radius:20px;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
+.quad{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.quad>div{position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.12)}
+.quad .lb{position:absolute;left:16px;top:12px;z-index:3;color:#fff;font-weight:900;font-size:30px;text-shadow:0 2px 4px #000}
+.quad .lb small{font-size:16px;font-weight:700;opacity:.85;margin-left:8px}
+.burst{position:absolute;left:50%;top:55%;border-radius:50%;transform:translate(-50%,-50%)}
+.qb .burst{width:160px;height:160px;background:radial-gradient(circle,#bfe3ff,#3fa9ff 40%,transparent 70%);animation:pop 1.6s ease-out infinite}
+.qa .burst{width:260px;height:260px;background:radial-gradient(circle,#fff,#b79cff 30%,#7a55e6 50%,transparent 70%);animation:pop 1.6s ease-out infinite}
+.qs .burst{width:280px;height:280px;background:radial-gradient(circle,#fff,#ffe08a 25%,#f2a93b 45%,transparent 70%);animation:pop 1.6s ease-out infinite}
+.qs .rays{position:absolute;left:50%;top:50%;width:340px;height:340px;margin:-170px 0 0 -170px;background:repeating-conic-gradient(rgba(255,226,140,.5) 0 6deg,transparent 6deg 18deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 60%);mask:radial-gradient(circle,#000 20%,transparent 60%);animation:spin 8s linear infinite}
+.qss{background:#000}
+.qss .crack{position:absolute;left:50%;top:50%;width:6px;height:0;background:var(--el);box-shadow:0 0 20px var(--el),0 0 60px var(--el);transform:translate(-50%,-50%);animation:crack 1.6s ease-in -1s infinite}
+@keyframes crack{0%{height:0}70%{height:300px}100%{height:300px;width:600px;opacity:0}}
+@keyframes pop{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.meter{position:absolute;right:14px;bottom:12px;display:flex;gap:4px;z-index:3}
+.meter i{width:14px;height:22px;border-radius:3px;background:rgba(255,255,255,.25)}
+.meter i.on{background:#fff;box-shadow:0 0 8px #fff}
+.black{position:absolute;inset:0;background:#000}
+.line{position:absolute;left:0;right:0;top:46%;text-align:center;color:#fff;font-size:44px;font-weight:700;letter-spacing:2px;white-space:nowrap;overflow:hidden}
+.line span{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;animation:type 3.2s steps(12) -2.4s infinite;border-right:3px solid var(--el)}
+@keyframes type{0%{width:0}60%,100%{width:9.5em}}
+.line small{display:block;margin-top:14px;font-size:20px;color:var(--el);letter-spacing:6px}
+.ent .art{position:absolute;inset:0;background:url(img/assets_cutin_flora_cutin.png) 30% 20%/cover;animation:zin 3s ease-out -1.2s infinite}
+@keyframes zin{0%{transform:scale(1.25);filter:brightness(3) saturate(0)}25%{transform:scale(1.05);filter:brightness(1.2)}100%{transform:scale(1)}}
+.ent .ring2{position:absolute;left:62%;top:50%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;border:10px solid var(--el);box-shadow:0 0 50px var(--el),inset 0 0 50px var(--el);animation:shock 3s ease-out -.6s infinite}
+@keyframes shock{0%{transform:scale(.05);opacity:1}40%{opacity:.8}60%,100%{transform:scale(1.4);opacity:0}}
+.ent .nm{position:absolute;right:50px;bottom:60px;text-align:right;color:#fff}
+.ent .nm .k{display:inline-block;background:var(--el);color:#0d3b25;font-weight:900;font-size:22px;padding:4px 16px;transform:skewX(-12deg)}
+.ent .nm h5{margin:6px 0 0;font-size:110px;line-height:1;font-weight:900;letter-spacing:6px;text-shadow:0 0 30px var(--el),4px 5px 0 #0f3b25}
+.cards{position:absolute;left:150px;right:150px;top:70px;display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.card{position:relative;height:230px;border-radius:12px;background:#f8f4ff;overflow:hidden;box-shadow:0 0 0 4px #b8c6ff,0 8px 14px rgba(0,0,0,.35)}
+.card i{position:absolute;left:0;right:0;top:0;height:170px;background-size:185% auto;background-position:50% 8%;background-repeat:no-repeat;background-color:#e9e2ff}
+.card b{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:20px}
+.card em{position:absolute;left:8px;top:8px;font-style:normal;font-weight:900;font-size:14px;color:#fff;padding:2px 8px;border-radius:6px;background:#2b66c4}
+.card.a{box-shadow:0 0 0 4px #b79cff,0 8px 14px rgba(0,0,0,.35)}.card.a em{background:#6544d6}
+.card.s{box-shadow:0 0 0 4px #ffcc4d,0 0 18px #ffcc4d}.card.s em{background:#9a6200}
+.card.ss{box-shadow:0 0 0 5px var(--el),0 0 26px var(--el)}.card.ss em{background:var(--eld)}
+.card.ss i{background-color:#d9ffe9}
+.shardfly{position:absolute;z-index:6}
+.shardfly .shard{width:70px;height:108px}
+.F1 .shardfly{left:600px;top:470px;animation:fly 2.6s cubic-bezier(.5,0,.3,1) -1s infinite}
+@keyframes fly{0%{transform:translate(0,0) scale(.2);opacity:0}25%{transform:translate(0,-60px) scale(1.2);opacity:1}55%{transform:translate(0,-60px) scale(1)}90%{transform:translate(520px,-440px) scale(.3);opacity:1}100%{transform:translate(520px,-440px) scale(.2);opacity:0}}
+.jar{position:absolute;right:40px;top:20px;display:flex;align-items:center;gap:10px;color:#fff;font-weight:900;font-size:26px;background:rgba(16,10,40,.7);padding:10px 20px;border-radius:24px;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.jar .shard{width:26px;height:40px}
+.jar b{animation:cnt 2.6s steps(1) infinite}
+@keyframes cnt{0%,85%{opacity:1}}
+.plus{position:absolute;left:560px;top:330px;z-index:7;font-size:64px;font-weight:900;color:#fff;-webkit-text-stroke:2px #5a3fb0;text-shadow:0 0 20px #fff;animation:plus 2.6s ease-out -1s infinite}
+@keyframes plus{0%,20%{opacity:0;transform:scale(.4)}35%{opacity:1;transform:scale(1.1)}60%{opacity:1;transform:scale(1)}80%,100%{opacity:0;transform:translateY(-30px)}}
+.prism{position:absolute;inset:0;background:conic-gradient(from 0deg at 50% 70%,rgba(255,107,139,.25),rgba(255,230,107,.25),rgba(111,227,154,.25),rgba(94,195,255,.25),rgba(139,123,255,.25),rgba(255,107,139,.25));mix-blend-mode:screen;animation:spin 12s linear infinite;transform-origin:50% 70%;opacity:.8}
+.confirm{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);width:220px;height:66px;display:grid;place-items:center;font-weight:900;font-size:22px;color:var(--navy);background:#fff;clip-path:polygon(4% 0,100% 0,96% 100%,0 100%)}
+
+/* F2 캔버스 흐름 */
+.F2 .easel{position:absolute;left:50%;top:60px;width:560px;height:560px;margin-left:-280px}
+.F2 .easel .leg{position:absolute;bottom:-20px;width:18px;height:640px;background:linear-gradient(90deg,#8a5a2b,#c48a4a);border-radius:9px}
+.F2 .easel .cvs{position:absolute;left:30px;right:30px;top:20px;height:460px;background:#f4efe4;box-shadow:0 0 0 10px #c99a55,0 18px 30px rgba(0,0,0,.5);overflow:hidden}
+.F2 .dab{position:absolute;left:50%;top:50%;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:4px dashed #b8aed6;animation:pulse2 1.4s ease-in-out infinite}
+@keyframes pulse2{50%{transform:scale(1.06);border-color:#8b74e8}}
+.F2 .wet{position:absolute;left:50%;top:50%;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:46% 54% 50% 50%;background:radial-gradient(circle,#ffd36b,#ff8fb1 40%,#a58bff 70%);-webkit-mask:conic-gradient(#000 var(--p),transparent 0);mask:conic-gradient(#000 var(--p),transparent 0);animation:fillp 3s linear infinite;filter:url(#rough)}
+.F2 .tier{position:absolute;inset:0}
+.F2 .q4{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.F2 .q4>div{position:relative;overflow:hidden;background:#251d4a;border-right:2px solid rgba(255,255,255,.1)}
+.F2 .q4 .c{position:absolute;left:12%;right:12%;top:150px;height:340px;background:#f4efe4;box-shadow:0 0 0 6px #c99a55}
+.F2 .q4 .splat{position:absolute;left:50%;top:50%;border-radius:47% 53% 41% 59%;transform:translate(-50%,-50%);filter:url(#rough);animation:splat 1.8s ease-out -1.2s infinite}
+@keyframes splat{0%{transform:translate(-50%,-50%) scale(.1)}40%,100%{transform:translate(-50%,-50%) scale(1)}}
+.F2 .q4 .lb{position:absolute;left:0;right:0;top:40px;text-align:center;color:#fff;font-weight:900;font-size:40px}
+.F2 .q4 .lb small{display:block;font-size:15px;font-weight:600;opacity:.8}
+.F2 .q4 .fx{position:absolute;left:0;right:0;bottom:40px;text-align:center;color:#d8d0ff;font-size:15px;font-weight:700}
+.F2 .tear{position:absolute;inset:0;background:#000}
+.F2 .tear .hw{position:absolute;left:0;right:0;top:40%;text-align:center;color:var(--el);font-size:48px;font-weight:700;font-family:"Nanum Pen Script","Gaegu",cursive;text-shadow:0 0 18px var(--el)}
+.F2 .tear .hw span{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;animation:type2 3.2s steps(12) -2.4s infinite}
+@keyframes type2{0%{width:0}60%,100%{width:11.5em}}
+.F2 .drip{position:absolute;top:0;width:24px;background:var(--el);border-radius:0 0 12px 12px;animation:drip 3.2s ease-in -2.6s infinite;box-shadow:0 0 14px var(--el)}
+@keyframes drip{0%,50%{height:0}100%{height:720px}}
+.split .art{position:absolute;inset:0;background:url(img/assets_cutin_flora_cutin.png) 30% 20%/cover;animation:wipe 3s ease-out -1.6s infinite;-webkit-mask:linear-gradient(100deg,#000 var(--p),transparent calc(var(--p) + 8%));mask:linear-gradient(100deg,#000 var(--p),transparent calc(var(--p) + 8%))}
+@keyframes wipe{0%{--p:-10%}50%,100%{--p:100%}}
+.split .bk{position:absolute;inset:0;background:#000}
+.split .nm{position:absolute;left:46px;bottom:46px;color:#fff}
+.split .nm h5{margin:0;font-size:100px;line-height:1;font-weight:900;text-shadow:0 0 24px var(--el),4px 4px 0 #0f3b25}
+.split .nm b{display:inline-block;background:#fff;color:var(--eld);padding:4px 14px;border-radius:8px;font-size:20px}
+.F2 .wall{position:absolute;inset:0;background:linear-gradient(#3b2d6e,#241b4a)}
+.F2 .fr{position:absolute;width:150px;height:190px;background-size:185% auto;background-position:50% 8%;background-color:#efe9ff;box-shadow:0 0 0 8px #c99a55,0 10px 14px rgba(0,0,0,.4)}
+.F2 .fr.ss{box-shadow:0 0 0 8px var(--el),0 0 30px var(--el)}
+.F2 .fr.s{box-shadow:0 0 0 8px #ffcc4d,0 0 18px #ffcc4d}
+.F2 .pot{position:absolute;right:70px;bottom:40px;width:170px;height:200px}
+.F2 .pot .glass{position:absolute;inset:40px 10px 0;border-radius:40% 40% 30% 30%;background:rgba(255,255,255,.15);box-shadow:inset 0 0 0 4px rgba(255,255,255,.7)}
+.F2 .pot .lvl{position:absolute;left:14px;right:14px;bottom:4px;height:44%;border-radius:0 0 30% 30%;background:conic-gradient(from 90deg,#ff6b8b,#ffe66b,#6fe39a,#5ec3ff,#8b7bff,#ff6b8b);animation:rise 2.6s ease-out infinite}
+@keyframes rise{0%,50%{height:34%}80%,100%{height:48%}}
+.F2 .pot b{position:absolute;left:0;right:0;top:-6px;text-align:center;color:#fff;font-weight:900;font-size:22px}
+.F2 .drop{position:absolute;right:130px;top:140px;animation:drop 2.6s ease-in -1s infinite}
+.F2 .drop .shard{width:44px;height:68px}
+@keyframes drop{0%{transform:translate(-520px,-40px) rotate(0) scale(1.4);opacity:0}15%{opacity:1}60%{transform:translate(0,220px) rotate(540deg) scale(.6);opacity:1}61%,100%{opacity:0;transform:translate(0,220px)}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="26"/></filter></svg>
+<main class="page">
+<h1>소환 탭 + 소환 흐름 (#22 #23 #24 #25 #26 #27 #39 #40)</h1>
+<p class="lead">위 묶음은 <b>소환 탭 화면</b>(왼쪽 배너 목록 · 픽업 배너 그림 · 첫 10회 안내 · 10회에 신화 조각), 아래 묶음은 <b>뽑은 뒤의 흐름</b>(칠하기 → 등급 예고 → SS 장면 → 결과 · 신화 조각)입니다. 등급 색은 PD 규칙대로 <b>SS = 그 아이의 속성 색</b>(플로라는 생명 초록), <b>신화 = 무지개</b>입니다. 그림은 게임에 있는 컷인 · 배경을 그대로 썼고, 움직임은 CSS 애니메이션으로 계속 돕니다. 수치 · 날짜는 예시입니다.</p>
+<div class="bar"><button type="button" data-res="1280" aria-pressed="true">1280×720</button><button type="button" data-res="1600" aria-pressed="false">1600×720</button><span style="width:12px"></span><button type="button" data-st="" aria-pressed="true">픽업 배너</button><button type="button" data-st="st-guide" aria-pressed="false">첫 10회 안내 (#22)</button></div>
+
+<section class="ref">
+  <h2>지금 게임</h2>
+  <p class="cap">배너 아래에 「출석부 소환」 탭 하나만 떠 있고, 10회 소환 버튼이 다른 메뉴와 같은 판입니다. 결과의 신화 조각은 「신화 조각 +3 · 보유 43」 글자 한 줄이고, SS 장면은 잿빛 그림 + 자막입니다.</p>
+  <div class="refs">
+    <figure><img src="img/artifacts_feedback70_before_summon_pickup_1280x720.jpg" alt="지금 소환 탭"><figcaption>artifacts/feedback70/before/summon_pickup_1280x720.jpg</figcaption></figure>
+    <figure><img src="img/artifacts_feedback70_after_gacha_paint_prompt_1280x720.jpg" alt="지금 칠하기 안내"><figcaption>artifacts/feedback70/after/gacha_paint_prompt_1280x720.jpg</figcaption></figure>
+    <figure><img src="img/artifacts_feedback70_after_gacha_reveal_SS_f6_1280x720.jpg" alt="지금 SS 장면"><figcaption>artifacts/feedback70/after/gacha_reveal_SS_f6_1280x720.jpg</figcaption></figure>
+    <figure><img src="img/artifacts_feedback70_before_gacha_ten_result_1280x720.jpg" alt="지금 10회 결과"><figcaption>artifacts/feedback70/before/gacha_ten_result_1280x720.jpg</figcaption></figure>
+  </div>
+</section>
+
+<h3>1. 소환 탭 화면 (#39 배너 목록 · #40 배너 그림 · #22 첫 10회 · #25 신화 조각)</h3>
+
+<section class="opt" data-choice="tab_a" data-choice-group="summon_tab" data-choice-label="A · 아틀리에 갤러리">
+  <h2>A · 아틀리에 갤러리 — 배너 그림이 주인공</h2>
+  <p class="cap">배너를 금빛 액자에 걸린 그림으로 다루고, 왼쪽 목록은 핀으로 꽂은 작은 그림 3장(픽업 · 상시 · 첫 항해), 10회 버튼에는 무지개 신화 조각 딱지가 늘 붙어 있습니다.</p>
+  <div class="vp"><div class="scr A">
+    <div class="lib"></div><div class="dim"></div>
+    <div class="hdr"><div class="back">‹</div><h4>소환</h4><div class="cur"><span><img src="img/assets_ui_icon_ticket.png" alt="뽑기권">3</span><span><img src="img/assets_ui_icon_gem.png" alt="채색석">51,843</span></div></div>
+    <div class="rail">
+      <div class="cv on pick"><span class="pin"></span><div class="in" style="background-image:url(img/assets_cutin_flora_cutin.png)"></div><b>픽업 · 플로라<small>6일 남음</small></b></div>
+      <div class="cv guide" style="transform:rotate(-2deg)"><span class="pin"></span><div class="in" style="background-image:url(img/assets_cutin_flora_cutin.png)"></div><b>픽업 · 플로라<small>6일 남음</small></b></div>
+      <div class="cv"><span class="pin"></span><div class="in" style="background-image:url(img/assets_ui_summon_standard.png);background-position:70% 50%"></div><b>상시 출석부<small>언제나</small></b></div>
+      <div class="cv fv"><span class="pin"></span><span class="badge">50회</span><div class="in" style="background-image:url(img/assets_ui_summon_book.png);background-position:50% 35%;background-color:#26306b;background-size:70% auto;background-repeat:no-repeat"></div><b>첫 항해 출석부<small>10회마다 선물</small></b></div>
+    </div>
+    <div class="main">
+      <div class="art pick"><div class="wash"></div>
+        <i class="leaf" style="left:62%;animation-duration:7s"></i><i class="leaf" style="left:80%;animation-duration:9s;animation-delay:-3s"></i><i class="petal" style="left:90%;animation-duration:8s;animation-delay:-5s"></i><i class="petal" style="left:70%;animation-duration:10s;animation-delay:-1s"></i><i class="leaf" style="left:96%;animation-duration:6s;animation-delay:-2s"></i>
+        <div class="tt"><div class="g"><span class="chip">SS</span><span class="chip el">생명</span></div><h5>플로라</h5><q>모두, 다시 피어나.</q><div class="r50">SS가 나오면 50% 플로라</div></div>
+        <div class="time">6일 23시간</div>
+        <div class="sweep"></div>
+      </div>
+      <div class="g1 guide"><img src="img/assets_ui_summon_book.png" alt="출석부">
+        <div class="tt" style="position:absolute;color:#fff"><span class="chip" style="background:#e3a51f;color:#3b2400">첫 항해</span><h5 style="margin:10px 0 0;font-size:64px;font-weight:900;line-height:1.05">첫 항해<br>출석부</h5>
+          <div class="track"><b><img src="img/assets_ui_icon_dust.png" alt="별가루"></b><i></i><b><img src="img/assets_ui_icon_ticket.png" alt="뽑기권"></b><i></i><b><img src="img/assets_ui_icon_dust.png" alt="별가루"></b><i></i><b><img src="img/assets_ui_icon_ticket.png" alt="뽑기권"></b><i></i><b class="big">S↑</b></div>
+          <div style="margin-top:8px;font-weight:700;opacity:.9">10 · 20 · 30 · 40 · 50회</div></div>
+        <div class="sweep"></div>
+      </div>
+    </div>
+    <div class="bot">
+      <div class="mem pick"><div class="l"><span>기억 포인트</span><span>11 / 150</span></div><div class="gauge"><i></i></div></div>
+      <div class="mem guide" style="font-weight:800;font-size:18px">남은 50회 · 확률 · 가격은 상시와 같아요</div>
+      <button class="pull" type="button">1회<small><img src="img/assets_ui_icon_gem.png" alt="">160</small></button>
+      <button class="pull ten" type="button">10회<small><img src="img/assets_ui_icon_gem.png" alt="">1,600</small></button>
+    </div>
+    <div class="sbadge"><span class="shard"></span>신화 조각 1~3</div>
+    <div class="guide"><div class="hand" style="right:150px;top:600px"></div><div class="tip" style="right:120px;top:500px">선물 채색석 1600으로 10회!</div></div>
+  </div></div>
+</section>
+
+<section class="opt" data-choice="tab_b" data-choice-group="summon_tab" data-choice-label="B · 펼친 출석부">
+  <h2>B · 펼친 출석부 — 이야기(출석부)가 주인공</h2>
+  <p class="cap">화면 전체가 펼친 출석부이고, 배너는 책에 꽂힌 책갈피 3개(초록 픽업 · 남색 상시 · 금빛 첫 항해), 소환 버튼은 출석 도장처럼 찍는 밀랍 인장입니다.</p>
+  <div class="vp"><div class="scr B">
+    <div class="desk"></div>
+    <div class="hdr"><div class="back">‹</div><h4>소환</h4><div class="cur"><span><img src="img/assets_ui_icon_ticket.png" alt="뽑기권">3</span><span><img src="img/assets_ui_icon_gem.png" alt="채색석">51,843</span></div></div>
+    <div class="book"><div class="pg l"><div class="art pick"></div><div class="art guide" style="background:url(img/assets_ui_summon_book.png) center/contain no-repeat"></div></div><div class="pg r">
+      <div class="rp pick"><div class="k">PICK UP · SS</div><h5>플로라</h5><q>모두, 다시 피어나.</q>
+        <div class="stamps"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><em>도장 15개(150점)면 플로라를 바로 데려와요 · 지금 11점</em></div></div>
+      <div class="rp guide"><div class="k" style="color:#b77a12">FIRST VOYAGE</div><h5 style="color:#8a5a0c">첫 항해</h5><q>처음 50번, 10번마다 선물</q>
+        <div class="track" style="filter:invert(.85) hue-rotate(180deg)"><b>10</b><i></i><b>20</b><i></i><b>30</b><i></i><b>40</b><i></i><b class="big">50</b></div></div>
+      <div class="time pick">6일 23시간</div>
+      <div class="seals"><div class="seal one">1회<small>160</small></div><div class="seal ten">10회<small>1,600</small></div></div>
+      <div class="sbadge"><span class="shard"></span>+ 신화 조각</div>
+    </div></div>
+    <div class="tabs"><div class="tab p">픽업<small>플로라</small></div><div class="tab s">상시<small>언제나</small></div><div class="tab f">첫 항해<small>50회 남음</small></div></div>
+    <i class="petal" style="left:30%;animation-duration:9s"></i><i class="leaf" style="left:44%;animation-duration:7s;animation-delay:-2s"></i><i class="petal" style="left:60%;animation-duration:11s;animation-delay:-6s"></i>
+    <div class="guide"><div class="hand" style="right:120px;bottom:80px"></div><div class="tip" style="right:250px;bottom:230px">선물 채색석 1600 → 10회 도장!</div></div>
+  </div></div>
+</section>
+
+<section class="opt" data-choice="tab_c" data-choice-group="summon_tab" data-choice-label="C · 전신 무대">
+  <h2>C · 전신 무대 — 아이가 주인공</h2>
+  <p class="cap">컷인 그림을 화면 가득 깔고 글은 아래 기운 띠 한 줄만, 배너 목록은 왼쪽 물방울 모양 얼굴 3개로 줄이고, 소환 버튼은 오른쪽 아래 유리 받침에 띄웁니다.</p>
+  <div class="vp"><div class="scr C">
+    <div class="art pick"></div><div class="g2 guide"><img src="img/assets_ui_summon_book.png" alt="출석부"></div><div class="vig"></div>
+    <i class="petal" style="left:70%;animation-duration:8s"></i><i class="leaf" style="left:85%;animation-duration:6s;animation-delay:-2s"></i><i class="petal" style="left:55%;animation-duration:10s;animation-delay:-4s"></i><i class="leaf" style="left:95%;animation-duration:9s;animation-delay:-6s"></i>
+    <div class="sweep"></div>
+    <div class="hdr"><div class="back">‹</div><h4>소환</h4><div class="cur"><span><img src="img/assets_ui_icon_ticket.png" alt="뽑기권">3</span><span><img src="img/assets_ui_icon_gem.png" alt="채색석">51,843</span></div></div>
+    <div class="dots">
+      <div class="dot on pick"><i><span style="background:url(img/assets_cutin_flora_cutin.png) 30% 20%/260% auto"></span></i><div>픽업<small>6일</small></div></div>
+      <div class="dot off guide"><i><span style="background:url(img/assets_cutin_flora_cutin.png) 30% 20%/260% auto"></span></i><div>픽업<small>6일</small></div></div>
+      <div class="dot off"><i><span style="background:url(img/assets_ui_summon_standard.png) 70% 50%/260% auto"></span></i><div>상시</div></div>
+      <div class="dot off fvd"><i style="box-shadow:0 0 0 3px #ffcc4d"><span style="background:#26306b url(img/assets_ui_summon_book.png) 50% 40%/80% auto no-repeat"></span></i><div>첫 항해<small>50회</small></div></div>
+    </div>
+    <div class="tag pick"><b>SS</b><b>생명</b><b>50% 픽업</b></div>
+    <div class="rib"><div><h5 class="pick">플로라</h5><q class="pick">모두, 다시 피어나.</q><h5 class="guide">첫 항해 출석부</h5><q class="guide">10번마다 선물 · 50번째 S 이상</q></div></div>
+    <div class="mem2 pick"><div class="ring"></div>150점이면 플로라</div>
+    <div class="time pick">6일 23시간</div>
+    <div class="pbar"><button class="pull" type="button">1회<small><img src="img/assets_ui_icon_gem.png" alt="">160</small></button><button class="pull ten" type="button">10회<small><img src="img/assets_ui_icon_gem.png" alt="">1,600</small></button></div>
+    <div class="sbadge"><span class="shard"></span>신화 조각 1~3</div>
+    <div class="guide"><div class="hand" style="right:90px;top:620px"></div><div class="tip" style="right:330px;top:540px">선물 1600으로 10회!</div></div>
+  </div></div>
+</section>
+
+<h3>2. 소환 흐름 스토리보드 (#23 칠하기 · #26 등급 연출 · #27 SS 장면 · #24 #25 신화 조각)</h3>
+
+<section class="opt" data-choice="flow_a" data-choice-group="summon_flow" data-choice-label="가 · 도서관 원">
+  <h2>가 · 도서관 원 — 지금 무대(도서관)를 그대로 키우기</h2>
+  <p class="cap">지금 도서관 바닥의 가운데 원 하나만 칠하고(꾹 누르면 원을 따라 자동), 등급이 오를수록 빛이 커지며 SS는 화면이 완전히 꺼진 뒤 대사 → 속성 색 충격파로 등장, 신화 조각은 결정이 떠올라 오른쪽 위 보유 수로 날아갑니다.</p>
+  <div class="sb">
+    <div><div class="vp"><div class="scr F1">
+      <div class="lib gray"></div>
+      <div class="circle hit"></div><div class="fill"></div>
+      <div class="holdring" style="left:580px;top:330px"></div><div class="brush" style="left:640px;top:180px"></div>
+      <div class="skip">건너뛰기 ▶▶</div>
+      <div class="say">가운데 원을 문질러요 · 꾹 누르면 자동</div>
+    </div></div><p class="st">① 칠하기 (#23)<small>원 밖은 칠해지지 않고, 꾹 누르면 흰 고리가 차며 붓이 저절로 돕니다</small></p></div>
+    <div><div class="vp"><div class="scr F1">
+      <div class="quad">
+        <div class="qb"><div class="lib" style="filter:brightness(.6)"></div><div class="burst"></div><div class="lb">B<small>물방울 하나</small></div><div class="meter"><i class="on"></i><i></i><i></i><i></i></div></div>
+        <div class="qa"><div class="lib" style="filter:brightness(.6)"></div><div class="burst"></div><div class="lb">A<small>보랏빛 번짐</small></div><div class="meter"><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+        <div class="qs"><div class="lib" style="filter:brightness(.55)"></div><div class="rays"></div><div class="burst"></div><div class="lb">S<small>금빛 햇살 + 흔들림</small></div><div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+        <div class="qss"><div class="crack"></div><div class="lb">SS<small>화면이 꺼지고 속성 색 금</small></div><div class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+      </div>
+    </div></div><p class="st">② 등급마다 커지는 등장 (#26)<small>B 0.5초 · A 1초 · S 1.5초 + 화면 흔들림 · SS는 ③으로</small></p></div>
+    <div><div class="vp"><div class="scr F1">
+      <div class="black"></div>
+      <div class="line"><span>「모두, 다시 피어나.」</span><small>— 플로라</small></div>
+      <div class="skip">건너뛰기 ▶▶</div>
+    </div></div><p class="st">③ SS: 검은 화면 + 대사 (#27)<small>매번 나오고, 오른쪽 위 「건너뛰기」로 바로 ⑤</small></p></div>
+    <div><div class="vp"><div class="scr F1 ent">
+      <div class="art"></div><div class="ring2"></div>
+      <i class="leaf" style="left:50%;animation-duration:4s"></i><i class="leaf" style="left:70%;animation-duration:5s;animation-delay:-2s"></i><i class="petal" style="left:85%;animation-duration:4.5s;animation-delay:-1s"></i><i class="leaf" style="left:95%;animation-duration:3.5s;animation-delay:-3s"></i>
+      <div class="nm"><span class="k">SS · 생명</span><h5>플로라</h5></div>
+      <div class="skip">건너뛰기 ▶▶</div>
+    </div></div><p class="st">④ SS 등장<small>하얗게 터진 뒤 그림이 다가오며 생명 초록 충격파 · 잎 입자 (속성마다 입자 모양이 다름)</small></p></div>
+    <div><div class="vp"><div class="scr F1">
+      <div class="lib"></div><div class="prism"></div>
+      <div class="cards">
+        <div class="card"><em>B</em><i style="background-image:url(img/assets_chars_hana_idle.png)"></i><b>하나</b></div>
+        <div class="card a"><em>A</em><i style="background-image:url(img/assets_chars_yuna_idle.png)"></i><b>유나</b></div>
+        <div class="card"><em>B</em><i style="background-image:url(img/assets_chars_bina_idle.png)"></i><b>비나</b></div>
+        <div class="card s"><em>S</em><i style="background-image:url(img/assets_chars_hayun_idle.png)"></i><b>하윤</b></div>
+        <div class="card a"><em>A</em><i style="background-image:url(img/assets_chars_chaewon_idle.png)"></i><b>채원</b></div>
+        <div class="card"><em>B</em><i style="background-image:url(img/assets_chars_bina_idle.png)"></i><b>비나</b></div>
+        <div class="card ss"><em>SS</em><i style="background-image:url(img/assets_chars_flora_idle.png)"></i><b>플로라</b></div>
+        <div class="card a"><em>A</em><i style="background-image:url(img/assets_chars_yuna_idle.png)"></i><b>유나</b></div>
+        <div class="card"><em>B</em><i style="background-image:url(img/assets_chars_hana_idle.png)"></i><b>하나</b></div>
+        <div class="card"><em>B</em><i style="background-image:url(img/assets_chars_bina_idle.png)"></i><b>비나</b></div>
+      </div>
+      <div class="shardfly"><span class="shard"></span></div><div class="plus">+3</div>
+      <div class="jar"><span class="shard"></span><b>46</b></div>
+    </div></div><p class="st">⑤ 10회 결과 + 신화 조각 (#24 #25)<small>카드가 다 놓이면 책에서 무지개 결정이 떠올라 「+3」 → 오른쪽 위 보유 칸으로 날아가 숫자가 오름</small></p></div>
+  </div>
+</section>
+
+<section class="opt" data-choice="flow_b" data-choice-group="summon_flow" data-choice-label="나 · 이젤 캔버스">
+  <h2>나 · 이젤 캔버스 — 아틀리에답게 그림을 완성하기</h2>
+  <p class="cap">도서관 대신 이젤 위 빈 캔버스 한가운데 동그라미만 칠하고, 등급은 캔버스에 튄 물감 크기로, SS는 검은 캔버스에 대사를 손글씨로 쓴 뒤 속성 물감이 흘러내리며 그림이 드러나고, 결과는 액자 벽 + 무지개 물감 병에 결정이 떨어집니다.</p>
+  <div class="sb">
+    <div><div class="vp"><div class="scr F2">
+      <div class="lib" style="filter:blur(4px) brightness(.5) grayscale(.6)"></div>
+      <div class="easel"><i class="leg" style="left:60px;transform:rotate(6deg)"></i><i class="leg" style="right:60px;transform:rotate(-6deg)"></i><div class="cvs"><div class="dab"></div><div class="wet"></div></div></div>
+      <div class="brush" style="left:660px;top:120px"></div>
+      <div class="holdring" style="left:580px;top:240px"></div>
+      <div class="skip">건너뛰기 ▶▶</div>
+      <div class="say">동그라미를 칠해요 · 꾹 = 자동</div>
+    </div></div><p class="st">① 칠하기 (#23)<small>칠할 곳은 캔버스 가운데 점선 동그라미 하나</small></p></div>
+    <div><div class="vp"><div class="scr F2">
+      <div class="q4">
+        <div><div class="lb">B<small>작은 물방울</small></div><div class="c"><div class="splat" style="width:90px;height:90px;background:#5aa0ff"></div></div><div class="fx">톡</div></div>
+        <div><div class="lb">A<small>번짐 두 겹</small></div><div class="c"><div class="splat" style="width:180px;height:170px;background:radial-gradient(#d6c6ff,#8b6bff)"></div></div><div class="fx">번짐 + 반짝</div></div>
+        <div><div class="lb" style="color:#ffd36b">S<small>캔버스 가득</small></div><div class="c" style="box-shadow:0 0 0 6px #ffcc4d,0 0 40px #ffcc4d"><div class="splat" style="width:300px;height:300px;background:radial-gradient(#fff6c8,#ffcc4d 50%,#e8961c)"></div></div><div class="fx">금 액자로 바뀜 + 흔들림</div></div>
+        <div style="background:#000"><div class="lb" style="color:var(--el)">SS<small>캔버스가 검게</small></div><div class="c" style="background:#000;box-shadow:0 0 0 6px var(--el),0 0 40px var(--el)"></div><div class="fx">③으로</div></div>
+      </div>
+    </div></div><p class="st">② 등급마다 커지는 물감 (#26)<small>물감 크기 · 액자 색 · 소리로 단계가 바로 보임</small></p></div>
+    <div><div class="vp"><div class="scr F2">
+      <div class="tear"><i class="drip" style="left:18%"></i><i class="drip" style="left:47%;animation-delay:.3s"></i><i class="drip" style="left:81%;animation-delay:.15s"></i><div class="hw"><span>「모두, 다시 피어나.」</span></div></div>
+      <div class="skip">건너뛰기 ▶▶</div>
+    </div></div><p class="st">③ SS: 검은 캔버스 + 손글씨 대사 (#27)<small>대사가 다 써지면 속성 색 물감이 위에서 흘러내림 · 늘 건너뛰기 가능</small></p></div>
+    <div><div class="vp"><div class="scr F2 split">
+      <div class="bk"></div><div class="art"></div>
+      <i class="leaf" style="left:60%;animation-duration:4s"></i><i class="petal" style="left:80%;animation-duration:5s;animation-delay:-2s"></i><i class="leaf" style="left:92%;animation-duration:3.5s;animation-delay:-1s"></i>
+      <div class="nm"><b>SS · 생명</b><h5>플로라</h5></div>
+      <div class="skip">건너뛰기 ▶▶</div>
+    </div></div><p class="st">④ SS 등장<small>붓질 한 번이 왼쪽에서 오른쪽으로 쓸며 그림을 칠해 드러냄</small></p></div>
+    <div><div class="vp"><div class="scr F2">
+      <div class="wall"></div>
+      <div class="fr" style="left:70px;top:70px;background-image:url(img/assets_chars_hana_idle.png)"></div>
+      <div class="fr" style="left:260px;top:90px;background-image:url(img/assets_chars_yuna_idle.png)"></div>
+      <div class="fr s" style="left:450px;top:60px;background-image:url(img/assets_chars_hayun_idle.png)"></div>
+      <div class="fr" style="left:640px;top:90px;background-image:url(img/assets_chars_bina_idle.png)"></div>
+      <div class="fr" style="left:830px;top:70px;background-image:url(img/assets_chars_chaewon_idle.png)"></div>
+      <div class="fr" style="left:110px;top:330px;background-image:url(img/assets_chars_bina_idle.png)"></div>
+      <div class="fr ss" style="left:330px;top:300px;width:190px;height:240px;background-image:url(img/assets_chars_flora_idle.png)"></div>
+      <div class="fr" style="left:570px;top:340px;background-image:url(img/assets_chars_yuna_idle.png)"></div>
+      <div class="fr" style="left:760px;top:330px;background-image:url(img/assets_chars_hana_idle.png)"></div>
+      <div class="drop"><span class="shard"></span></div>
+      <div class="pot"><b>신화 조각 46</b><div class="glass"></div><div class="lvl"></div></div>
+      <div class="plus" style="left:auto;right:100px;top:150px">+3</div>
+    </div></div><p class="st">⑤ 액자 벽 결과 + 신화 조각 병 (#24 #25)<small>결정이 무지개 물감 병에 떨어지며 병이 차오름 (상점의 신화 조각 교환과 같은 병)</small></p></div>
+  </div>
+</section>
+</main>
+<script>
+const fit=()=>document.querySelectorAll('.vp').forEach(v=>{const s=v.querySelector('.scr');const k=v.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;v.style.height=s.offsetHeight*k+'px'});
+addEventListener('resize',fit);
+document.querySelectorAll('.bar [data-res]').forEach(b=>b.addEventListener('click',()=>{document.documentElement.style.setProperty('--w',b.dataset.res);document.querySelectorAll('.bar [data-res]').forEach(x=>x.setAttribute('aria-pressed',x===b));fit()}));
+document.querySelectorAll('.bar [data-st]').forEach(b=>b.addEventListener('click',()=>{document.body.className=b.dataset.st;document.querySelectorAll('.bar [data-st]').forEach(x=>x.setAttribute('aria-pressed',x===b))}));
+document.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>document.querySelectorAll(`.opt[data-choice-group="${o.dataset.choiceGroup}"]`).forEach(x=>x.classList.toggle('sel',x===o))));
+if(location.hash==='#guide')document.querySelector('.bar [data-st="st-guide"]').click();
+fit();
+</script>
+</body>
+</html>

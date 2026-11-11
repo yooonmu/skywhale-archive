@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레인보우 아틀리에 시안 · 전투 묶음 1 엄지 구역 (스킬칸 · 강화 · 조작 줄 · 메뉴 바 · 퀘스트)</title>
+<style>
+:root{--navy:#2e2350;--ink:#2e2350;--lav:#8b74e8;--gold:#ffbf2e;--gold2:#ffe48a;--rim:#e2b55c;--cream:#fffaf0;--line:#e2dbf5;--w:1280;
+  --world:url(orig/world_1280.jpg);--hud:url(orig/hud_1280.jpg)}
+:root[data-w="1600"]{--world:url(orig/world_1600.jpg);--hud:url(orig/hud_1600.jpg)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#f3f0fa;color:var(--navy);font-family:"Pretendard","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.45}
+.page{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+.page>h1{font-size:22px;margin:0 0 4px}
+.page>h3{font-size:18px;margin:34px 0 8px;padding-top:12px;border-top:2px solid var(--line)}
+.lead{margin:0 0 12px;font-size:14px;color:#5a5180}
+.lead b{color:#4a33b0}
+.bar{position:sticky;top:0;z-index:30;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;padding:8px 0;font-size:13px;background:rgba(243,240,250,.94)}
+.bar button{font:inherit;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #c9bff0;background:#fff;color:var(--navy);cursor:pointer}
+.bar button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.bar a{color:#4a33b0;font-weight:700;padding:12px 4px}
+.ref,.opt{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 18px}
+.opt{cursor:pointer}
+.opt[data-choice-selected],.opt.sel{outline:3px solid var(--lav);outline-offset:2px}
+.opt h2,.ref h2{font-size:17px;margin:0 0 2px}
+.cap{margin:0 0 10px;font-size:14px;color:#4c4374}
+.cap b{color:#4a33b0}
+.cost{display:block;margin-top:4px;font-size:13px;color:#7a4b2a}
+.fl{font-size:13px;font-weight:700;color:#5d5585;margin:12px 0 6px}
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:10px}
+.refs figure{margin:0}.refs img{width:100%;display:block;border-radius:8px}.refs img.w16,:root[data-w="1600"] .refs img.w12{display:none}:root[data-w="1600"] .refs img.w16{display:block}.refs figcaption{overflow-wrap:anywhere;font-size:12px;color:#5d5585;margin-top:4px}
+.w16{display:none}:root[data-w="1600"] .w12{display:none}:root[data-w="1600"] .w16{display:block}
+.vp{position:relative;width:100%;overflow:hidden;border-radius:8px;background:#1d1838}
+.scr{position:absolute;left:0;top:0;width:calc(var(--w)*1px);height:720px;transform-origin:0 0;overflow:hidden;font-size:16px}
+.scr>img.bg{position:absolute;left:0;top:0;width:100%;height:720px}
+/* 옛 칸 지우기(같은 순간 HUD 없는 캡처) · 옛 칸 옮기기(HUD 캡처 조각) */
+.er,.mv{position:absolute;background-repeat:no-repeat;background-size:calc(var(--w)*1px) 720px;background-position:calc(-1 * var(--x)) calc(-1 * var(--y));pointer-events:none}
+.er{left:var(--x);top:var(--y);background-image:var(--world)}
+.mv{background-image:var(--hud)}
+.er.cl{--x:calc(var(--w)*1px - 358px);--y:522px;width:346px;height:170px}
+.er.up{--x:calc(var(--w)*1px - 358px);--y:522px;width:346px;height:80px}
+.er.ct{--x:calc(var(--w)*1px - 568px);--y:568px;width:210px;height:122px}
+.er.mn{--x:0px;--y:626px;width:463px;height:94px}
+.er.q1{--x:4px;--y:124px;width:404px;height:98px}
+.er.q2{--x:160px;--y:200px;width:108px;height:36px}
+.mv.oup{--x:calc(var(--w)*1px - 356px);--y:566px;width:344px;height:36px;right:12px}
+.mv.otop{--x:calc(var(--w)*1px - 238px);--y:524px;width:226px;height:42px;right:12px}
+.mv.ocd{--x:calc(var(--w)*1px - 356px);--y:600px;width:344px;height:88px;right:12px}
+.tag{position:absolute;padding:3px 9px;border-radius:8px;background:#c2185b;color:#fff;font-size:13px;font-weight:800;white-space:nowrap;z-index:20}
+/* 상태 칸: 1280 전투 캡처(HUD 없음)의 한 조각 위에 같은 부품 */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:10px;margin-top:6px}
+.tile{margin:0}
+.tile figcaption{font-size:12.5px;color:#4c4374;margin-top:4px}
+.tv{width:100%;overflow:hidden;border-radius:8px;background:#1d1838;position:relative}
+.tw{position:absolute;left:0;top:0;overflow:hidden;transform-origin:0 0}
+.sub{position:absolute;left:0;top:0;width:1280px;height:720px;background:url(orig/world_1280.jpg) 0 0/1280px 720px no-repeat;transform:translate(var(--tx),var(--ty))}
+.crop{position:absolute;background:url(orig/hud_1280.jpg) no-repeat;background-size:1280px 720px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- 공통 ---------- */
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes spina{to{--a:360deg}}
+@keyframes sweep{0%{transform:translateX(-140%) skewX(-18deg)}55%,100%{transform:translateX(160%) skewX(-18deg)}}
+@keyframes flow{to{background-position:260% 0}}
+@keyframes glow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes streak{to{background-position:-160px 0}}
+@keyframes pop{0%{transform:translate(-50%,6px) scale(.6);opacity:0}25%{transform:translate(-50%,-4px) scale(1.12);opacity:1}70%{opacity:1}100%{transform:translate(-50%,-16px) scale(1);opacity:0}}
+@keyframes flash{0%,100%{opacity:0}12%{opacity:.85}}
+@keyframes slidein{0%,10%{transform:translateX(-430px)}26%,100%{transform:translateX(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes wave{to{background-position:12px 0}}
+@keyframes dash{to{stroke-dashoffset:-60}}
+.e-w{--el:#ffd75e;--el2:#fff3c4;--eld:#d9a514}
+.e-p{--el:#9a6bff;--el2:#e4d8ff;--eld:#6a3fd8}
+.e-o{--el:#ff9a3c;--el2:#ffe2c4;--eld:#d96a12}
+.e-r{--el:#f5b6ff;--el2:#fdeaff;--eld:#b06ad8}
+.pf{display:block;background-repeat:no-repeat}
+.ol{text-shadow:0 2px 0 #2e2350,1px 1px 0 #2e2350,-1px 1px 0 #2e2350,1px -1px 0 #2e2350,-1px -1px 0 #2e2350,0 0 3px #2e2350}
+.lki{display:inline-block;width:11px;height:9px;border-radius:2px;background:currentColor;position:relative;margin-top:5px;flex:none}
+.lki::before{content:"";position:absolute;left:2px;top:-6px;width:7px;height:7px;border:2px solid currentColor;border-bottom:0;border-radius:4px 4px 0 0;box-sizing:border-box}
+.shine{position:absolute;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none}
+.shine::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:sweep 2.6s ease-in-out infinite}
+.upfx{position:absolute;left:50%;top:-26px;z-index:5;white-space:nowrap;padding:1px 8px;border-radius:9px;background:linear-gradient(180deg,#ffe48a,#f0a92a);color:#4a2a00;font-size:12px;font-weight:900;box-shadow:0 0 0 1.5px #fff,0 2px 0 rgba(120,70,0,.35);animation:pop 2.2s ease-out infinite}
+.fl8{position:absolute;inset:0;border-radius:inherit;background:rgba(255,236,150,.9);animation:flash 2.2s ease-out infinite;pointer-events:none}
+
+/* ================= 1. 스킬칸 ================= */
+.k1{position:absolute;right:24px;bottom:40px;display:flex;gap:8px;align-items:flex-end}
+/* A 기운 액자 */
+.ka .c{position:relative;width:76px;height:80px;transform:skewX(-8deg);border-radius:10px;padding:3px;background:linear-gradient(160deg,#fff,#e2d9fa);box-shadow:0 3px 0 rgba(46,35,80,.3),0 8px 14px rgba(46,35,80,.28)}
+.ka .in{position:relative;height:100%;border-radius:8px;clip-path:inset(0 round 8px);background:linear-gradient(180deg,var(--el2),#fff)}
+.ka .pf{position:absolute;left:-8px;top:-3px;width:86px;height:80px;transform:skewX(8deg)}
+.ka .veil{position:absolute;left:0;right:0;top:0;height:var(--cd);background:linear-gradient(180deg,rgba(30,20,64,.8),rgba(46,35,80,.6));box-shadow:0 2px 0 rgba(255,255,255,.8)}
+.ka .num{position:absolute;left:0;right:0;top:0;bottom:16px;display:grid;place-items:center;transform:skewX(8deg);color:#fff;font-weight:900;font-size:27px}
+.ka .lv{position:absolute;left:0;right:0;bottom:0;height:17px;background:linear-gradient(90deg,#2e2350,#5a3a9e);border-top:2px solid var(--el);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.ka .lv span{transform:skewX(8deg)}
+.ka .c.rd{background:linear-gradient(160deg,#fff3c4,#ffbf2e 60%,#ffe48a)}
+.ka .c.rd::before{content:"";position:absolute;inset:-5px;border-radius:14px;box-shadow:0 0 16px 5px rgba(255,191,46,.85);animation:glow 1.4s ease-in-out infinite;z-index:-1}
+.ka .rib{position:absolute;left:5px;top:-12px;z-index:3;padding:0 7px;border-radius:4px;background:linear-gradient(180deg,#ffe48a,#f0a92a);color:#4a2a00;font-size:11px;font-weight:900;line-height:17px;box-shadow:0 2px 0 rgba(120,70,0,.35)}
+.ka .c.ss{background:linear-gradient(120deg,var(--eld),var(--el2) 22%,var(--el) 45%,#fff 58%,var(--eld) 78%,var(--el));background-size:260% 100%;animation:flow 2.6s linear infinite}
+.ka .c.my{background:conic-gradient(from var(--a),#ff8db8,#ffcf6b,#9ff0b8,#8fd2ff,#c5a6ff,#ff8db8);animation:spina 3s linear infinite}
+/* B 물감 원판 */
+.kb .m{position:relative;width:76px;height:96px}
+.kb .halo{position:absolute;left:-5px;top:-5px;width:86px;height:86px;border-radius:50%;-webkit-mask:radial-gradient(circle,transparent 38px,#000 39.5px);mask:radial-gradient(circle,transparent 38px,#000 39.5px);animation:spina 3s linear infinite}
+.kb .m.ss .halo{background:conic-gradient(from var(--a),var(--el),transparent 22%,var(--el2) 45%,transparent 70%,var(--el))}
+.kb .m.my .halo{background:conic-gradient(from var(--a),#ff8db8,#ffcf6b,#9ff0b8,#8fd2ff,#c5a6ff,#ff8db8)}
+.kb .ring{position:absolute;left:0;top:0;width:76px;height:76px;border-radius:50%;padding:5px;background:conic-gradient(var(--el) 0 var(--p),rgba(46,35,80,.62) var(--p) 100%);box-shadow:0 0 0 2px #fff,0 5px 10px rgba(46,35,80,.35)}
+.kb .ring .pf{width:66px;height:66px;border-radius:50%;background-color:var(--el2);box-shadow:inset 0 0 0 2px #fff}
+.kb .dim{position:absolute;left:5px;top:5px;width:66px;height:66px;border-radius:50%;background:rgba(30,20,64,.38)}
+.kb .sec{position:absolute;left:50%;top:46px;transform:translateX(-50%);min-width:32px;text-align:center;padding:0 7px;border-radius:10px;background:rgba(46,35,80,.92);color:#fff;font-weight:900;font-size:14px;line-height:20px;box-shadow:0 0 0 1.5px #fff}
+.kb .lv{position:absolute;left:50%;bottom:0;transform:translateX(-50%);white-space:nowrap;padding:0 8px;border-radius:9px;background:#fffaf0;color:#2e2350;font-size:11px;font-weight:800;line-height:18px;box-shadow:0 0 0 1.5px var(--el),0 2px 0 rgba(46,35,80,.2)}
+.kb .m.rd .ring{background:conic-gradient(from var(--a),#ffd66b,#fff3c4,#ffbf2e,#fff3c4,#ffd66b);animation:spina 2.4s linear infinite;box-shadow:0 0 0 2px #fff,0 0 20px rgba(255,191,46,.95)}
+.kb .tap{position:absolute;left:50%;top:-12px;transform:translateX(-50%);z-index:3;padding:0 8px;border-radius:9px;background:linear-gradient(180deg,#ffe48a,#f0a92a);color:#4a2a00;font-size:11px;font-weight:900;line-height:18px;white-space:nowrap;box-shadow:0 2px 0 rgba(120,70,0,.35);animation:pulse 1.4s ease-in-out infinite}
+/* C 세로 카드 + 물감 수위 */
+.kc{bottom:36px}
+.kc .v{position:relative;width:76px;height:112px;border-radius:11px;padding:3px;background:linear-gradient(180deg,#fff,#e9e2ff);box-shadow:0 0 0 1.5px var(--el),0 6px 12px rgba(46,35,80,.3)}
+.kc .in{position:relative;height:100%;border-radius:9px;overflow:hidden;background:linear-gradient(180deg,var(--el2),#fff 85%)}
+.kc .nm{position:absolute;left:0;right:0;top:0;height:19px;z-index:2;background:linear-gradient(90deg,var(--eld),var(--el));color:#fff;font-size:12px;font-weight:900;text-align:center;line-height:19px;text-shadow:0 1px 1px rgba(0,0,0,.35)}
+.kc .pf{position:absolute;left:0;top:19px;width:70px;height:72px}
+.kc .paint{position:absolute;left:0;right:0;bottom:17px;height:var(--p);background:linear-gradient(180deg,color-mix(in srgb,var(--el) 42%,transparent),color-mix(in srgb,var(--el) 70%,transparent))}
+.kc .paint::before{content:"";position:absolute;left:0;right:0;top:-6px;height:6px;background:radial-gradient(circle at 6px 6px,color-mix(in srgb,var(--el) 42%,transparent) 5.5px,transparent 6px) 0 0/12px 6px repeat-x;animation:wave 1.4s linear infinite}
+.kc .num{position:absolute;left:0;right:0;top:30px;text-align:center;font-weight:900;font-size:25px;color:#fff;z-index:2}
+.kc .lv{position:absolute;left:0;right:0;bottom:0;height:17px;background:linear-gradient(90deg,#2e2350,#5a3a9e);color:#fff;font-size:11px;font-weight:800;text-align:center;line-height:17px}
+.kc .v.rd{transform:translateY(-6px);background:linear-gradient(180deg,#fff3c4,#ffbf2e);box-shadow:0 0 0 1.5px #ffbf2e,0 0 18px rgba(255,191,46,.85),0 12px 14px rgba(46,35,80,.3)}
+.kc .v.ss{background:linear-gradient(120deg,var(--eld),var(--el2) 22%,var(--el) 45%,#fff 58%,var(--eld) 78%,var(--el));background-size:260% 100%;animation:flow 2.6s linear infinite}
+.kc .v.my{background:conic-gradient(from var(--a),#ff8db8,#ffcf6b,#9ff0b8,#8fd2ff,#c5a6ff,#ff8db8);animation:spina 3s linear infinite}
+.kc .rib{position:absolute;left:50%;top:-13px;transform:translateX(-50%);z-index:3;padding:0 7px;border-radius:4px;background:linear-gradient(180deg,#ffe48a,#f0a92a);color:#4a2a00;font-size:11px;font-weight:900;line-height:17px;white-space:nowrap;box-shadow:0 2px 0 rgba(120,70,0,.35)}
+
+/* ================= 2. 강화 버튼 줄 ================= */
+.rowr{position:absolute;right:24px;display:flex;gap:8px;align-items:center}
+.qb0{width:36px;height:36px;border-radius:50%;background:#fffaf0;box-shadow:0 0 0 1.5px var(--rim),0 3px 0 rgba(46,35,80,.2);display:grid;place-items:center;font-weight:900;color:#5b46c4;font-size:17px}
+/* A 금빛 꼬리표 + 세 칸 스위치 */
+.ua .t{position:relative;width:76px;height:30px;transform:skewX(-10deg);border-radius:7px;background:linear-gradient(180deg,#fffaf0,#efe7ff);box-shadow:0 0 0 1.5px var(--rim),0 3px 0 rgba(46,35,80,.22);display:flex;align-items:center;justify-content:center;gap:3px;color:#2e2350;font-weight:900;font-size:13px;white-space:nowrap}
+.ua .t>*{transform:skewX(10deg)}
+.ua .ar{width:16px;height:16px;border-radius:50%;background:linear-gradient(180deg,#ffe48a,#f0a92a);color:#4a2a00;font-size:9px;display:grid;place-items:center;flex:none}
+.ua .t img{width:15px;height:15px}
+.ua .t.off{background:linear-gradient(180deg,#eeebf3,#dcd8e6);box-shadow:0 0 0 1.5px #c4bed4,0 3px 0 rgba(46,35,80,.12);color:#6f6890}
+.ua .t.off img,.ua .t.off .ar{filter:grayscale(1);opacity:.55}
+.ua .bulk{height:36px;padding:0 10px 0 14px;transform:skewX(-10deg);border-radius:8px;background:linear-gradient(180deg,#8ff0cf,#2fb593);box-shadow:0 0 0 1.5px #fff,0 3px 0 #1f8c72;color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;gap:6px;text-shadow:0 1px 0 #1b6e59}
+.ua .bulk>*{transform:skewX(10deg)}
+.ua .bulk i{font-style:normal;min-width:20px;height:20px;border-radius:10px;background:#fff;color:#15705b;font-size:12px;display:grid;place-items:center;text-shadow:none}
+.ua .bulk.off{background:linear-gradient(180deg,#dedbe6,#c6c1d3);box-shadow:0 0 0 1.5px #fff,0 3px 0 #a7a1b8;color:#5f5873;text-shadow:none}
+.ua .bulk.off i{color:#5f5873}
+.ua .seg{display:flex;height:36px;transform:skewX(-10deg);border-radius:8px;overflow:hidden;box-shadow:0 0 0 1.5px var(--rim),0 3px 0 rgba(46,35,80,.2);background:#fffaf0}
+.ua .seg b{width:40px;display:grid;place-items:center;font-size:13px;font-weight:900;color:#6f6890}
+.ua .seg b span{transform:skewX(10deg)}
+.ua .seg b.on{background:linear-gradient(180deg,#5a3a9e,#2e2350);color:#ffe48a}
+/* B 받침대 */
+.ub .p{position:relative;width:76px;height:32px;clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);background:linear-gradient(180deg,#5a3a9e,#2e2350);box-shadow:inset 0 2px 0 var(--gold);color:#ffe48a;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
+.ub .p img{width:15px;height:15px}
+.ub .p.off{background:linear-gradient(180deg,#8a83a3,#625b7b);box-shadow:inset 0 2px 0 #b9b3c9;color:#ece8f6}
+.ub .p.off img{filter:grayscale(1);opacity:.7}
+.ub .bulk{height:34px;padding:0 14px;clip-path:polygon(6% 0,94% 0,100% 100%,0 100%);background:linear-gradient(180deg,#5a3a9e,#2e2350);box-shadow:inset 0 2px 0 #7ff0c4;color:#a8ffd9;font-weight:900;font-size:14px;display:flex;align-items:center}
+.ub .bulk.off{background:linear-gradient(180deg,#8a83a3,#625b7b);color:#ece8f6;box-shadow:inset 0 2px 0 #b9b3c9}
+.ub .dial{position:relative;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#2e2350 0 15px,transparent 15.5px),conic-gradient(from -60deg,var(--gold) 0 33.3%,#6f62a8 0 66.6%,#6f62a8 0 100%);box-shadow:0 0 0 2px #fff,0 3px 0 rgba(46,35,80,.3);display:grid;place-items:center;color:#ffe48a;font-weight:900;font-size:12px}
+.ub .dial.m10{background:radial-gradient(circle,#2e2350 0 15px,transparent 15.5px),conic-gradient(from -60deg,#6f62a8 0 33.3%,var(--gold) 0 66.6%,#6f62a8 0 100%)}
+.ub .dial.mx{background:radial-gradient(circle,#2e2350 0 15px,transparent 15.5px),conic-gradient(from -60deg,#6f62a8 0 66.6%,var(--gold) 0 100%)}
+/* C 모으는 막대 */
+.uc .g{position:relative;width:76px;height:30px;border-radius:15px;background:#f1ecfb;box-shadow:0 0 0 1.5px #c9bff0,0 3px 0 rgba(46,35,80,.2);overflow:hidden;display:flex;align-items:center;justify-content:center;gap:3px;font-weight:900;font-size:13px;color:#2e2350;white-space:nowrap}
+.uc .g .f{position:absolute;left:0;top:0;bottom:0;width:var(--g);background:linear-gradient(90deg,#d9cdfb,#b5a2f3)}
+.uc .g>span,.uc .g>img{position:relative}
+.uc .g img{width:15px;height:15px}
+.uc .g.full{box-shadow:0 0 0 1.5px var(--rim),0 3px 0 rgba(150,96,10,.35),0 0 10px rgba(255,191,46,.55)}
+.uc .g.full .f{width:100%;background:linear-gradient(90deg,#ffe48a,#ffbf2e)}
+.uc .g:not(.full){color:#5f5873}
+.uc .bulk{height:36px;padding:0 12px;border-radius:18px;background:linear-gradient(180deg,#fffaf0,#e9fbf4);box-shadow:0 0 0 1.5px #3fc9a8,0 3px 0 rgba(31,140,114,.35);color:#1f6e5a;font-weight:900;font-size:13px;display:flex;align-items:center;gap:6px}
+.uc .bulk b{color:#1f8c72;font-size:15px}
+.uc .mode{height:36px;padding:0 10px;border-radius:18px;background:#fffaf0;box-shadow:0 0 0 1.5px var(--rim),0 3px 0 rgba(46,35,80,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:13px;line-height:1.1}
+.uc .mode i{display:flex;gap:3px;margin-top:2px}
+.uc .mode i u{width:6px;height:6px;border-radius:50%;background:#d6cff0}
+.uc .mode i u.on{background:#6a4fd6}
+
+/* ================= 3. 조작 줄 ================= */
+/* A 한 판 세 칸 */
+.ca{position:absolute;right:358px;bottom:36px;width:206px;height:112px;padding:6px 8px;transform:skewX(-10deg);border-radius:12px;background:linear-gradient(160deg,rgba(46,35,80,.95),rgba(88,58,156,.95));box-shadow:0 0 0 2px var(--gold),0 8px 16px rgba(46,35,80,.4);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:56px 36px;gap:6px}
+.ca .w{grid-column:1/3;position:relative;overflow:hidden;border-radius:8px;background:linear-gradient(90deg,#ffcc73,#f5856b);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 2px 0 #b8461f;display:flex;align-items:center;justify-content:center;gap:6px;color:#fff;font-weight:900;font-size:18px;text-shadow:0 1px 0 #a8401f,0 0 6px rgba(168,64,31,.55)}
+.ca .w>img,.ca .w>span{transform:skewX(10deg);position:relative}
+.ca .w img{width:38px;height:38px}
+.ca .w .pg{position:absolute;left:0;bottom:0;height:5px;width:var(--pg);background:#fff;opacity:.9;box-shadow:0 0 6px #fff}
+.ca .w.on{background:linear-gradient(90deg,#7fd2ff,#3f8cff);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 2px 0 #2558b8;text-shadow:0 1px 0 #1d4c9e}
+.ca .w.on::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(100deg,rgba(255,255,255,.32) 0 2px,transparent 2px 26px);animation:streak 1s linear infinite}
+.ca .w.cd{background:linear-gradient(90deg,#5b4d93,#463978);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 2px 0 #2e2350;color:#e4dcff;text-shadow:none}
+.ca .w.cd img{opacity:.6}
+.ca .w.cd .pg{background:linear-gradient(90deg,#b5a2f3,#e4dcff);box-shadow:none}
+.ca .w.lk{background:linear-gradient(90deg,#6c6585,#57506f);box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 2px 0 #3a3450;color:#ece8f6;text-shadow:none;font-size:15px}
+.ca .w.lk img{filter:grayscale(1);opacity:.55}
+.ca .r,.ca .a{border-radius:8px;display:flex;align-items:center;justify-content:center;gap:4px;font-weight:900;font-size:14px;white-space:nowrap}
+.ca .r>*,.ca .a>*{transform:skewX(10deg)}
+.ca .r{background:#fffaf0;color:#2e2350}.ca .r img{width:18px;height:18px}
+.ca .r.lk{background:#cfcadb;color:#4f4866;font-size:13px}
+.ca .a{background:linear-gradient(180deg,#b29bff,#7562d8);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.ca .a.off{background:#fffaf0;color:#2e2350;box-shadow:none}
+/* B 순풍 돛 */
+.cb{position:absolute;right:358px;bottom:34px;width:206px;height:114px}
+.cb .sail{position:absolute;left:0;top:0;width:134px;height:114px}
+.cb .sail svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 5px 6px rgba(46,35,80,.35))}
+.cb .sail .tx{position:absolute;left:12px;right:6px;top:18px;bottom:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;line-height:1.15;text-align:center;text-shadow:0 1px 0 #a8401f,0 0 6px rgba(168,64,31,.5)}
+.cb .sail .tx img{width:40px;height:40px}
+.cb .sail .tx small{font-size:12px;font-weight:800}
+.cb .sail.on .tx{text-shadow:0 1px 0 #1d4c9e}
+.cb .sail.cd .tx,.cb .sail.lk .tx{color:#ece8f6;text-shadow:none}
+.cb .sail.cd .tx img,.cb .sail.lk .tx img{opacity:.55;filter:grayscale(.6)}
+.cb .sail .wind{stroke:#fff;stroke-width:3;stroke-linecap:round;fill:none;stroke-dasharray:18 42;animation:dash 1.1s linear infinite;opacity:.8}
+.cb .clock{position:absolute;right:-6px;top:-6px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#2e2350 0 11px,transparent 11.5px),conic-gradient(#b5a2f3 0 var(--pg),rgba(46,35,80,.55) var(--pg));box-shadow:0 0 0 2px #fff}
+.cb .pills{position:absolute;right:0;top:4px;width:64px;display:flex;flex-direction:column;gap:6px}
+.cb .pl{height:51px;border-radius:14px;background:#fffaf0;box-shadow:0 0 0 1.5px var(--rim),0 3px 0 rgba(46,35,80,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#2e2350;line-height:1.15;white-space:nowrap}
+.cb .pl img{width:20px;height:20px}
+.cb .pl.on{background:linear-gradient(180deg,#b29bff,#7562d8);color:#fff;box-shadow:0 0 0 1.5px #fff,0 3px 0 #4f3bb0}
+.cb .pl.lk{background:#cfcadb;color:#4f4866;box-shadow:0 0 0 1.5px #b9b3c9}
+.cb .pl small{font-size:11px}
+/* C 구슬 셋 */
+.cc{position:absolute;right:356px;bottom:28px;width:208px;height:120px}
+.cc .o{position:absolute;border-radius:50%;display:grid;place-items:center}
+.cc .ow{left:0;top:6px;width:96px;height:96px;padding:6px;background:conic-gradient(#ffd66b 0 100%);box-shadow:0 0 0 2px #fff,0 0 18px rgba(255,191,46,.75),0 6px 10px rgba(46,35,80,.3)}
+.cc .ow .core{width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 40% 32%,#fff 0 12%,#ffd98a 45%,#f5856b);display:grid;place-items:center}
+.cc .ow .core img{width:46px;height:46px}
+.cc .ow.on{background:conic-gradient(from var(--a),#7fd2ff,#fff,#3f8cff,#fff,#7fd2ff);animation:spina 1.6s linear infinite;box-shadow:0 0 0 2px #fff,0 0 18px rgba(63,140,255,.7)}
+.cc .ow.on .core{background:radial-gradient(circle at 40% 32%,#fff 0 12%,#9edcff 45%,#3f8cff)}
+.cc .ow.cd{background:conic-gradient(#b5a2f3 0 var(--pg),rgba(46,35,80,.62) var(--pg));box-shadow:0 0 0 2px #fff,0 6px 10px rgba(46,35,80,.3)}
+.cc .ow.cd .core,.cc .ow.lk .core{background:radial-gradient(circle at 40% 32%,#fff 0 10%,#ddd6ee 50%,#9d94b8)}
+.cc .ow.cd .core img,.cc .ow.lk .core img{opacity:.5;filter:grayscale(.7)}
+.cc .ow.lk{background:#8a83a3;box-shadow:0 0 0 2px #fff,0 6px 10px rgba(46,35,80,.3)}
+.cc .big{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;font-weight:900;font-size:19px;white-space:nowrap}
+.cc .lb{position:absolute;left:48px;top:96px;transform:translateX(-50%);white-space:nowrap;padding:0 9px;border-radius:9px;background:linear-gradient(90deg,#2e2350,#5a3a9e);color:#fff;font-size:12px;font-weight:800;line-height:19px;box-shadow:0 0 0 1.5px var(--gold)}
+.cc .sm{width:56px;height:56px;background:radial-gradient(circle at 40% 30%,#fff,#f4efff 55%,#d9cff6);box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--rim),0 4px 8px rgba(46,35,80,.3);flex-direction:column;font-weight:900;font-size:12px;color:#2e2350;line-height:1.1;display:flex;align-items:center;justify-content:center}
+.cc .sm img{width:20px;height:20px}
+.cc .sm.on{background:radial-gradient(circle at 40% 30%,#efe7ff,#b29bff 55%,#7562d8);color:#fff}
+.cc .sm.lk{background:radial-gradient(circle at 40% 30%,#f1eff6,#cfcadb);color:#4f4866;box-shadow:0 0 0 2px #fff,0 0 0 3.5px #b9b3c9}
+.cc .rt{left:106px;top:0}
+.cc .au{left:150px;top:60px}
+
+/* ================= 4. 하단 메뉴 바 ================= */
+.hc0{--hc:#ff8db8}.hc1{--hc:#9a84f0}.hc2{--hc:#ffcf5a}.hc3{--hc:#6cb8ff}.hc4{--hc:#4fd18b}.hc5{--hc:#ff9a6b}
+.dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#ff5a73;box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--rim)}
+.lkc{position:absolute;display:flex;align-items:center;gap:3px;padding:0 6px;border-radius:8px;background:#4f4866;color:#fff;font-size:10.5px;font-weight:900;line-height:16px;white-space:nowrap}
+.lkc .lki{width:8px;height:7px;margin-top:3px}.lkc .lki::before{left:1.5px;top:-5px;width:5px;height:6px;border-width:1.5px}
+/* A 기운 판 + 허브 물감 */
+.na{position:absolute;left:12px;bottom:8px;width:446px;height:76px;transform:skewX(-10deg);border-radius:12px;background:linear-gradient(180deg,#fffdf8,#efe8ff);box-shadow:0 0 0 1.5px var(--rim),0 4px 0 rgba(46,35,80,.2),0 8px 14px rgba(46,35,80,.2);display:flex;padding:0 6px}
+.na .h{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:skewX(10deg);font-size:13px;font-weight:800;color:#2e2350}
+.na .h+.h::before{content:"";position:absolute;left:0;top:16px;bottom:16px;width:1px;background:rgba(59,49,96,.14)}
+.na .dp{width:52px;height:42px;display:grid;place-items:center;background:radial-gradient(ellipse 50% 46% at 50% 58%,color-mix(in srgb,var(--hc) 55%,transparent),color-mix(in srgb,var(--hc) 18%,transparent) 70%,transparent 74%)}
+.na .dp img{width:36px;height:36px}
+.na .dot{top:6px;right:9px}
+.na .h.lk .dp{background:radial-gradient(ellipse 50% 46% at 50% 58%,rgba(120,112,150,.25),transparent 74%)}
+.na .h.lk img{filter:grayscale(1);opacity:.45}
+.na .h.lk span{color:#6f6890}
+.na .lkc{top:30px;left:50%;transform:translateX(-50%)}
+.na .h.sp .dp{border-radius:50%;box-shadow:0 0 0 2px #ffd23f,0 0 12px rgba(255,210,63,.8);animation:glow 1s ease-in-out infinite}
+.na .h.pr .dp{transform:scale(.9);filter:brightness(.92)}
+/* B 구름 위 단추 */
+.nb{position:absolute;left:14px;bottom:8px;display:flex;gap:10px}
+.nb .b{position:relative;width:62px;height:78px;display:flex;flex-direction:column;align-items:center;animation:bob 3.2s ease-in-out infinite;animation-delay:calc(var(--i) * -.45s)}
+.nb .c{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 40% 30%,#fff,#f4efff 60%,#e3d9fb);box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--hc),0 5px 10px rgba(46,35,80,.32);display:grid;place-items:center}
+.nb .c img{width:36px;height:36px}
+.nb .lb{margin-top:-7px;padding:0 9px;border-radius:9px;background:linear-gradient(90deg,#2e2350,#5a3a9e);color:#fff;font-size:12px;font-weight:800;line-height:19px;box-shadow:0 0 0 1.5px var(--gold);white-space:nowrap;position:relative}
+.nb .dot{top:0;right:2px}
+.nb .b.lk .c{background:radial-gradient(circle at 40% 30%,#f6f4fa,#dcd8e6);box-shadow:0 0 0 2px #fff,0 0 0 3.5px #b9b3c9,0 5px 10px rgba(46,35,80,.25)}
+.nb .b.lk img{filter:grayscale(1);opacity:.45}
+.nb .b.lk .lb{background:#6f6890;box-shadow:0 0 0 1.5px #b9b3c9}
+.nb .lkc{top:20px;left:50%;transform:translateX(-50%)}
+.nb .b.sp .c{box-shadow:0 0 0 2px #fff,0 0 0 3.5px #ffd23f,0 0 16px rgba(255,210,63,.9)}
+.nb .b.pr .c{transform:scale(.9)}
+/* C 남색 띠 + 이유 꼬리표 */
+.nc{position:absolute;left:12px;bottom:10px;width:446px;height:66px;transform:skewX(-10deg);border-radius:10px;background:linear-gradient(160deg,rgba(46,35,80,.95),rgba(88,58,156,.95));box-shadow:0 0 0 2px var(--gold),0 6px 14px rgba(46,35,80,.35);display:flex;padding:0 4px}
+.nc .h{flex:1;position:relative;transform:skewX(10deg);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#efe9ff;font-size:12px;font-weight:800}
+.nc .h img{width:34px;height:34px;filter:drop-shadow(0 0 5px rgba(255,255,255,.35))}
+.nc .why{position:absolute;top:-17px;left:50%;transform:translateX(-50%);white-space:nowrap;padding:0 7px;border-radius:8px;background:linear-gradient(180deg,#ffe48a,#f0a92a);color:#4a2a00;font-size:11px;font-weight:900;line-height:17px;box-shadow:0 2px 0 rgba(120,70,0,.35);z-index:2}
+.nc .why::after{content:"";position:absolute;left:50%;bottom:-4px;margin-left:-4px;border:4px solid transparent;border-top-color:#f0a92a;border-bottom:0}
+.nc .h.lk img{filter:grayscale(1) brightness(.8);opacity:.5}
+.nc .h.lk span{color:#a59fbf}
+.nc .lkc{top:24px;left:50%;transform:translateX(-50%);background:#6a6384}
+.nc .h.sp img{filter:drop-shadow(0 0 8px #ffd23f) drop-shadow(0 0 3px #fff)}
+
+/* ================= 5. 퀘스트 카드 ================= */
+.resume{position:absolute;left:150px;top:210px;z-index:4;padding:1px 10px;border-radius:7px;transform:skewX(-10deg);background:linear-gradient(180deg,#9a84f0,#6a4fd6);color:#fff;font-size:13px;font-weight:800;box-shadow:0 0 0 1.5px #fff,0 2px 0 rgba(46,35,80,.3);white-space:nowrap}
+/* A 기운 리본 */
+.qa{position:absolute;left:16px;top:136px;width:386px;height:80px;transform:skewX(-8deg);transform-origin:0 100%;border-radius:12px;background:linear-gradient(100deg,#fffdf8,#f0eaff);box-shadow:0 0 0 1.5px var(--rim),0 4px 0 rgba(46,35,80,.18),0 8px 14px rgba(46,35,80,.18);display:flex;align-items:center;gap:10px;padding-right:12px}
+.qa .no{width:58px;align-self:stretch;border-radius:12px 0 0 12px;background:linear-gradient(180deg,#9a84f0,#6a4fd6);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900}
+.qa .no>*{transform:skewX(8deg)}
+.qa .no small{font-size:10px;letter-spacing:1px;opacity:.9}
+.qa .no b{font-size:25px;line-height:1}
+.qa .tx{flex:1;min-width:0;transform:skewX(8deg)}
+.qa .t1{font-size:16px;font-weight:800;color:#2e2350;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qa .t0{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:#6a4fd6}
+.qa .t0 b{color:#2e2350}
+.qa .pb{height:10px;border-radius:5px;background:#e4dcfb;overflow:hidden;margin-top:6px;box-shadow:inset 0 1px 2px rgba(46,35,80,.2)}
+.qa .pb i{display:block;height:100%;width:var(--q);background:linear-gradient(90deg,#9a84f0,#6a4fd6)}
+.qa .md{position:relative;width:60px;height:60px;flex:none;transform:skewX(8deg);border-radius:50%;background:radial-gradient(circle at 40% 32%,#fffbe8,#ffe48a 58%,#e9a93a);box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--rim),0 3px 6px rgba(120,70,0,.3);display:grid;place-items:center}
+.qa .md img{width:32px;height:32px;margin-top:-8px}
+.qa .md b{position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);padding:0 8px;border-radius:9px;background:linear-gradient(90deg,#2e2350,#5a3a9e);color:#ffe48a;font-size:13px;font-weight:900;line-height:18px;white-space:nowrap}
+.qa.rd{background:linear-gradient(100deg,#fff6d8,#ffe7a6);box-shadow:0 0 0 2px var(--gold),0 4px 0 rgba(150,96,10,.25),0 0 18px rgba(255,191,46,.6)}
+.qa.rd .no{background:linear-gradient(180deg,#ffd66b,#e9a93a)}
+.qa.rd .pb i{background:linear-gradient(90deg,#ffd979,#e9a93a)}
+.qa.rd .md{animation:pulse 1.2s ease-in-out infinite}
+.qa .stamp{position:absolute;right:62px;top:-12px;transform:skewX(8deg) rotate(-8deg);padding:0 10px;border-radius:6px;border:2px solid #e0731a;color:#a94a06;font-weight:900;font-size:14px;background:#fff7e6;line-height:22px;white-space:nowrap}
+/* B 핀 꽂은 메모지 */
+.qb{position:absolute;left:18px;top:132px;width:382px;height:86px;transform:rotate(-1.2deg);border-radius:4px 4px 12px 4px;background:repeating-linear-gradient(180deg,transparent 0 23px,rgba(139,116,232,.2) 23px 24px),linear-gradient(180deg,#fffdf6,#fff6e6);box-shadow:0 6px 12px rgba(46,35,80,.25),0 1px 0 rgba(46,35,80,.1);padding:9px 86px 8px 20px}
+.qb .clip{position:absolute;left:12px;top:-11px;width:15px;height:30px;border:3px solid var(--rim);border-radius:8px}
+.qb .h{font-size:13px;font-weight:900;color:#6a4fd6;font-style:italic;letter-spacing:.5px}
+.qb .row{display:flex;align-items:center;gap:7px;margin-top:4px;font-size:15.5px;font-weight:800;color:#2e2350}
+.qb .ck{width:18px;height:18px;border-radius:4px;border:2px solid #8b74e8;flex:none;position:relative;background:#fff}
+.qb .row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.qb .cn{position:absolute;right:88px;top:8px;font-size:13px;font-weight:900;color:#2e2350}
+.qb .rw{position:absolute;right:10px;top:9px;width:66px;height:66px;border-radius:50%;border:2px dashed var(--rim);background:radial-gradient(circle,#fff,#fff4d6);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#2e2350}
+.qb .rw img{width:30px;height:30px}
+.qb.rd .ck{background:#ff6b7d;border-color:#d9384f}
+.qb.rd .ck::after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(40deg)}
+.qb.rd .rw{border-style:solid;border-color:var(--gold);box-shadow:0 0 14px rgba(255,191,46,.8);animation:pulse 1.2s ease-in-out infinite}
+.qb .ink{position:absolute;right:96px;top:30px;transform:rotate(-12deg);border:3px solid #d9384f;color:#d9384f;border-radius:8px;padding:0 9px;font-weight:900;font-size:19px;opacity:.88;background:rgba(255,255,255,.55);line-height:26px}
+/* C 접힌 알약 */
+.qc{position:absolute;left:16px;top:138px;height:50px;width:332px;border-radius:25px;background:linear-gradient(90deg,#fffdf8,#f0eaff);box-shadow:0 0 0 1.5px var(--rim),0 4px 0 rgba(46,35,80,.18);display:flex;align-items:center;gap:8px;padding:0 6px}
+.qc .ic{width:38px;height:38px;border-radius:50%;background:linear-gradient(180deg,#9a84f0,#6a4fd6);display:grid;place-items:center;flex:none}
+.qc .ic img{width:28px;height:28px}
+.qc .t1{flex:1;min-width:0;font-size:15px;font-weight:800;color:#2e2350;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qc .cn{font-size:13px;font-weight:900;color:#6a4fd6;flex:none}
+.qc .rw{height:38px;padding:0 10px 0 6px;border-radius:19px;background:#ece5ff;display:flex;align-items:center;gap:4px;font-size:14px;font-weight:900;color:#2e2350;flex:none}
+.qc .rw img{width:26px;height:26px}
+.qc.rd{background:linear-gradient(90deg,#fff1c2,#ffd979);box-shadow:0 0 0 2px var(--gold),0 4px 0 rgba(150,96,10,.25),0 0 16px rgba(255,191,46,.6)}
+.qc.rd .ic{background:linear-gradient(180deg,#ffd66b,#e9a93a)}
+.qc.rd .cn{color:#b5530f}
+.qc.rd .rw{background:#fff;animation:pulse 1.2s ease-in-out infinite}
+.qc.ex{height:92px;width:386px;border-radius:18px;align-items:flex-start;padding:8px 8px 8px 10px;flex-wrap:wrap}
+.qc.ex .tx{flex:1;min-width:0}
+.qc.ex .t1{white-space:normal;font-size:15px}
+.qc.ex .pb{height:9px;border-radius:5px;background:#e4dcfb;overflow:hidden;margin-top:6px}
+.qc.ex .pb i{display:block;height:100%;width:var(--q);background:linear-gradient(90deg,#9a84f0,#6a4fd6)}
+.slide{animation:slidein 4s ease-out infinite}
+</style>
+</head>
+<body>
+<main class="page">
+<h1>전투 묶음 1 · 엄지 구역 — 스킬칸 · 강화 버튼 · 조작 줄 · 메뉴 바 · 퀘스트 카드</h1>
+<p class="lead">전투 화면에서 <b>가장 오래 보고 가장 많이 누르는 다섯 부품</b>을 요소마다 세 방향(A/B/C)으로 그렸습니다. 바탕은 <b>지금 게임의 같은 순간을 HUD 있음 · 없음 두 장</b>으로 찍은 것이라, 왼쪽 위 통합 판 · 보스 판 · 보호막 막대 · 고래 숨결(확정 HUD B)과 재화 줄 · 콤보 · 왼쪽 버튼(전투 2 묶음)은 지금 모습 그대로이고 <b>고른 요소만 새로 그렸습니다</b>. 그림은 모두 게임에 있는 초상 · 아이콘이고, 숫자 · 문구는 캡처와 같으며 상태 칸의 ×10 · MAX 비용과 긴 퀘스트 번호만 예시입니다. 요소마다 마음에 드는 칸을 누르면 고를 수 있습니다 (요소끼리 섞어 골라도 한 줄에 들어가게 맞췄습니다).</p>
+<div class="bar"><button type="button" data-res="1280" aria-pressed="true">1280×720</button><button type="button" data-res="1600" aria-pressed="false">1600×720</button><a href="#g1">1 스킬칸</a><a href="#g2">2 강화</a><a href="#g3">3 조작 줄</a><a href="#g4">4 메뉴 바</a><a href="#g5">5 퀘스트</a></div>
+
+<section class="ref">
+  <h2>지금 게임</h2>
+  <p class="cap">다섯 부품이 모두 같은 크림 둥근 판 · 같은 버튼이라 무엇이 「누르는 곳」이고 무엇이 「상태」인지 구분이 약합니다. 궁극기 준비는 테두리 빛뿐, 순풍 쿨타임은 글자뿐, 잠긴 메뉴는 세 줄 글자가 아이콘을 덮습니다.</p>
+  <div class="refs">
+    <figure><img class="w12" src="orig/hud_1280.jpg" alt="지금 전투 1280"><img class="w16" src="orig/hud_1600.jpg" alt="지금 전투 1600"><figcaption>orig/hud_(1280|1600).jpg — 이 시안의 바탕 (같은 순간 HUD 없음: orig/world_*.jpg)</figcaption></figure>
+    <figure><img src="orig/now_poor.jpg" alt="바람 조각 부족 · MAX"><figcaption>orig/now_poor.jpg — 바람 조각 0 · MAX 단위 · 강화 버튼 흐림</figcaption></figure>
+    <figure><img src="orig/now_wind_on.jpg" alt="순풍 사용 중"><figcaption>orig/now_wind_on.jpg — 순풍 사용 중 「2배속 58초」 (왼쪽 의뢰 창은 없앨 예정 c)</figcaption></figure>
+    <figure><img src="orig/now_wind_cd.jpg" alt="순풍 쿨타임"><figcaption>orig/now_wind_cd.jpg — 순풍 쿨타임 「순풍 4:05」</figcaption></figure>
+    <figure><img src="orig/now_fresh.jpg" alt="첫 접속 잠김"><figcaption>orig/now_fresh.jpg — 첫 접속: 잠긴 메뉴 · 바람 모으는 중 · 복귀 Lv.4</figcaption></figure>
+    <figure><img src="orig/now_quest_ready.jpg" alt="퀘스트 완료"><figcaption>orig/now_quest_ready.jpg — 퀘스트 완료(보상 받기) · orig/now_quest_claim.jpg 받는 순간</figcaption></figure>
+  </div>
+</section>
+
+<!-- ======================================================= 1 -->
+<h3 id="g1">1 · 아이 스킬칸 — 누르면 궁극기, 길게 누르면 아이 정보</h3>
+
+<section class="opt" data-choice="b1_card_a" data-choice-group="스킬칸" data-choice-label="스킬칸 A · 기운 액자">
+  <h2>A · 기운 액자 — 보스 판과 같은 기울기, 위에서 걷히는 베일</h2>
+  <p class="cap">쿨타임은 남색 베일이 <b>위에서 아래로 걷히고</b> 남은 초가 크게, 준비되면 테가 <b>금빛으로 바뀌고 「궁극기」 띠</b>가 붙습니다. SS 세레나는 속성 색(보라)이 테를 흐르고, 신화는 무지개 테가 돕니다.<span class="cost">비용: 기울기 때문에 칸 사이가 좁아 보임 — 간격 8px 유지.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er" style="--x:calc(var(--w)*1px - 358px);--y:600px;width:346px;height:92px"></i>
+    <div class="k1 ka">
+      <div class="c rd e-w"><div class="in"><i class="pf" data-id="yerin" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_yerin_idle.png)"></i><span class="shine"></span><b class="lv"><span>항해 Lv.14</span></b></div><b class="rib">궁극기</b></div>
+      <div class="c e-p" style="--cd:62%"><div class="in"><i class="pf" data-id="yuna" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_yuna_idle.png)"></i><i class="veil"></i><b class="num ol">25</b><b class="lv"><span>항해 Lv.14</span></b></div></div>
+      <div class="c ss e-p" style="--cd:55%"><div class="in"><i class="pf" data-id="serena" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_serena_idle.png)"></i><i class="veil"></i><b class="num ol">23</b><b class="lv"><span>항해 Lv.1</span></b></div></div>
+      <div class="c e-o" style="--cd:66%"><div class="in"><i class="pf" data-id="juhee" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_juhee_idle.png)"></i><i class="veil"></i><b class="num ol">26</b><b class="lv"><span>항해 Lv.14</span></b></div></div>
+    </div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="420" data-th="150" style="max-width:420px"><div class="tw" style="width:420px;height:150px"><div class="sub" style="--tx:-860px;--ty:-550px">
+      <div class="k1 ka">
+        <div class="c rd my e-r"><div class="in"><i class="pf" data-id="arca" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_arca_idle.png)"></i><span class="shine"></span><b class="lv"><span>항해 Lv.30</span></b></div><b class="rib">궁극기</b></div>
+        <div class="c ss e-p" style="--cd:22%"><div class="in"><i class="pf" data-id="serena" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_serena_idle.png)"></i><i class="veil"></i><b class="num ol">9</b><b class="lv"><span>항해 Lv.1</span></b></div></div>
+        <div class="c e-w" style="--cd:80%"><div class="in"><i class="pf" data-id="yerin" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_yerin_idle.png)"></i><i class="veil"></i><b class="num ol">31</b><b class="lv"><span>항해 Lv.24</span></b><i class="fl8"></i></div><b class="upfx">항해 Lv +10</b></div>
+        <div class="c e-o" style="--cd:66%"><div class="in"><i class="pf" data-id="juhee" data-bw="86" data-bh="80" style="background-image:url(img/assets_chars_juhee_idle.png)"></i><i class="veil"></i><b class="num ol">26</b><b class="lv"><span>항해 Lv.14</span></b></div></div>
+      </div>
+    </div></div></div><figcaption>신화 아르카 준비(무지개 테 + 「궁극기」) · SS 세레나 9초 · 예린 강화 순간(금빛 번쩍 + Lv) · 주희 쿨타임</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_card_b" data-choice-group="스킬칸" data-choice-label="스킬칸 B · 물감 원판">
+  <h2>B · 물감 원판 — 고리가 시계 방향으로 차오름</h2>
+  <p class="cap">초상을 동그랗게 오리고 <b>속성 색 고리가 쿨타임만큼 차오릅니다</b>(남은 초는 아래 작은 알약). 준비되면 고리가 <b>금빛으로 돌고 「궁극기!」 꼬리표</b>가 통통 뜁니다. 고래 숨결 구슬과 같은 둥근 가족이 됩니다.<span class="cost">비용: 원 안 초상이 작아 얼굴 위주로만 보임 · 항해 Lv은 아래 알약으로 내려감.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er" style="--x:calc(var(--w)*1px - 358px);--y:600px;width:346px;height:92px"></i>
+    <div class="k1 kb" style="bottom:28px">
+      <div class="m rd e-w"><div class="ring"><i class="pf" data-id="yerin" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_yerin_idle.png)"></i></div><b class="tap">궁극기!</b><b class="lv">항해 Lv.14</b></div>
+      <div class="m e-p" style="--p:38%"><div class="ring"><i class="pf" data-id="yuna" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_yuna_idle.png)"></i></div><i class="dim"></i><b class="sec">25</b><b class="lv">항해 Lv.14</b></div>
+      <div class="m ss e-p" style="--p:45%"><i class="halo"></i><div class="ring"><i class="pf" data-id="serena" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_serena_idle.png)"></i></div><i class="dim"></i><b class="sec">23</b><b class="lv">항해 Lv.1</b></div>
+      <div class="m e-o" style="--p:34%"><div class="ring"><i class="pf" data-id="juhee" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_juhee_idle.png)"></i></div><i class="dim"></i><b class="sec">26</b><b class="lv">항해 Lv.14</b></div>
+    </div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="420" data-th="160" style="max-width:420px"><div class="tw" style="width:420px;height:160px"><div class="sub" style="--tx:-860px;--ty:-546px">
+      <div class="k1 kb" style="bottom:28px">
+        <div class="m rd my e-r"><i class="halo"></i><div class="ring"><i class="pf" data-id="arca" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_arca_idle.png)"></i></div><b class="tap">궁극기!</b><b class="lv">항해 Lv.30</b></div>
+        <div class="m ss e-p" style="--p:78%"><i class="halo"></i><div class="ring"><i class="pf" data-id="serena" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_serena_idle.png)"></i></div><i class="dim"></i><b class="sec">9</b><b class="lv">항해 Lv.1</b></div>
+        <div class="m e-w" style="--p:20%"><div class="ring"><i class="pf" data-id="yerin" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_yerin_idle.png)"></i></div><i class="dim"></i><b class="sec">31</b><b class="lv">항해 Lv.24</b><b class="upfx">항해 Lv +10</b></div>
+        <div class="m e-o" style="--p:34%"><div class="ring"><i class="pf" data-id="juhee" data-bw="66" data-bh="66" style="background-image:url(img/assets_chars_juhee_idle.png)"></i></div><i class="dim"></i><b class="sec">26</b><b class="lv">항해 Lv.14</b></div>
+      </div>
+    </div></div></div><figcaption>신화 아르카 준비(무지개 고리) · SS 세레나 9초(보라 고리가 돎) · 예린 강화 순간 · 주희 쿨타임</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_card_c" data-choice-group="스킬칸" data-choice-label="스킬칸 C · 세로 카드">
+  <h2>C · 세로 카드 — 이름 띠 + 상반신, 물감이 차오름</h2>
+  <p class="cap">카드가 세로로 길어져 <b>아이 이름과 상반신</b>이 보이고, 쿨타임은 <b>속성 색 물감이 아래에서 차오르는</b> 수위로 보입니다. 준비되면 카드가 <b>살짝 솟고 금 테</b>. 강화 버튼 · 일괄 강화 줄은 그만큼 36px 위로 올라갑니다 (지금 버튼을 옮겨 놓음).<span class="cost">비용: 높이 +36px — 오른쪽 아래 하늘을 조금 더 가림.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er cl"></i>
+    <i class="mv oup" style="top:530px"></i><i class="mv otop" style="top:486px"></i>
+    <div class="k1 kc">
+      <div class="v rd e-w"><div class="in"><b class="nm">예린</b><i class="pf" data-id="yerin" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_yerin_idle.png)"></i><i class="paint" style="--p:72px"></i><span class="shine"></span><b class="lv">항해 Lv.14</b></div><b class="rib">궁극기</b></div>
+      <div class="v e-p"><div class="in"><b class="nm">유나</b><i class="pf" data-id="yuna" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_yuna_idle.png)"></i><i class="paint" style="--p:27px"></i><b class="num ol">25</b><b class="lv">항해 Lv.14</b></div></div>
+      <div class="v ss e-p"><div class="in"><b class="nm">세레나</b><i class="pf" data-id="serena" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_serena_idle.png)"></i><i class="paint" style="--p:32px"></i><b class="num ol">23</b><b class="lv">항해 Lv.1</b></div></div>
+      <div class="v e-o"><div class="in"><b class="nm">주희</b><i class="pf" data-id="juhee" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_juhee_idle.png)"></i><i class="paint" style="--p:24px"></i><b class="num ol">26</b><b class="lv">항해 Lv.14</b></div></div>
+    </div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="420" data-th="170" style="max-width:420px"><div class="tw" style="width:420px;height:170px"><div class="sub" style="--tx:-860px;--ty:-540px">
+      <div class="k1 kc">
+        <div class="v rd my e-r"><div class="in"><b class="nm">아르카</b><i class="pf" data-id="arca" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_arca_idle.png)"></i><i class="paint" style="--p:72px"></i><span class="shine"></span><b class="lv">항해 Lv.30</b></div><b class="rib">궁극기</b></div>
+        <div class="v ss e-p"><div class="in"><b class="nm">세레나</b><i class="pf" data-id="serena" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_serena_idle.png)"></i><i class="paint" style="--p:56px"></i><b class="num ol">9</b><b class="lv">항해 Lv.1</b></div></div>
+        <div class="v e-w"><div class="in"><b class="nm">예린</b><i class="pf" data-id="yerin" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_yerin_idle.png)"></i><i class="paint" style="--p:14px"></i><b class="num ol">31</b><b class="lv">항해 Lv.24</b><i class="fl8"></i></div><b class="upfx">항해 Lv +10</b></div>
+        <div class="v e-o"><div class="in"><b class="nm">주희</b><i class="pf" data-id="juhee" data-bw="70" data-bh="72" data-z="3.1" data-cy=".4" style="background-image:url(img/assets_chars_juhee_idle.png)"></i><i class="paint" style="--p:24px"></i><b class="num ol">26</b><b class="lv">항해 Lv.14</b></div></div>
+      </div>
+    </div></div></div><figcaption>신화 아르카 준비(무지개 테 · 물감 가득) · SS 세레나 9초 · 예린 강화 순간 · 주희 쿨타임</figcaption></figure>
+  </div>
+</section>
+
+<!-- ======================================================= 2 -->
+<h3 id="g2">2 · 강화 버튼 줄 — 칸 위 ▲비용 · 「?」 · 일괄 강화 · 단위</h3>
+
+<section class="opt" data-choice="b1_up_a" data-choice-group="강화 버튼" data-choice-label="강화 A · 금빛 꼬리표 + 세 칸 스위치">
+  <h2>A · 금빛 꼬리표 + 세 칸 스위치 — 지금 단위가 늘 보임</h2>
+  <p class="cap">칸 위 버튼은 <b>금 테 꼬리표(▲ · 바람 조각 · 비용)</b>, 단위는 <b>×1 · ×10 · MAX 세 칸이 한 줄</b>로 늘 보여 지금 무엇을 누르는지 압니다. 일괄 강화 옆 숫자 = 지금 올릴 수 있는 칸 수.<span class="cost">비용: 윗줄 폭 +60px (오른쪽 끝에서 왼쪽으로).</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er up"></i>
+    <div class="rowr ua" style="top:526px"><b class="qb0">?</b><b class="bulk"><span>일괄 강화</span><i>4</i></b><b class="seg"><b class="on"><span>×1</span></b><b><span>×10</span></b><b><span>MAX</span></b></b></div>
+    <div class="rowr ua" style="top:570px;gap:8px"><b class="t"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>443</span></b><b class="t"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>443</span></b><b class="t"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>12</span></b><b class="t"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>443</span></b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="380" data-th="100" style="max-width:380px"><div class="tw" style="width:380px;height:100px"><div class="sub" style="--tx:-900px;--ty:-514px">
+      <div class="rowr ua" style="top:526px"><b class="qb0">?</b><b class="bulk off"><span>일괄 강화</span><i>0</i></b><b class="seg"><b><span>×1</span></b><b><span>×10</span></b><b class="on"><span>MAX</span></b></b></div>
+      <div class="rowr ua" style="top:570px"><b class="t off"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt=""><span>443</span></b><b class="t off"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt=""><span>443</span></b><b class="t off"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt=""><span>12</span></b><b class="t off"><b class="ar">▲</b><img src="img/assets_ui_icon_gold.png" alt=""><span>443</span></b></div>
+    </div></div></div><figcaption>바람 조각 0 · MAX — 모두 잿빛, 일괄 강화 0</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="380" data-th="100" style="max-width:380px"><div class="tw" style="width:380px;height:100px"><div class="sub" style="--tx:-900px;--ty:-514px">
+      <div class="rowr ua" style="top:526px"><b class="qb0">?</b><b class="bulk"><span>일괄 강화</span><i>2</i></b><b class="seg"><b><span>×1</span></b><b class="on"><span>×10</span></b><b><span>MAX</span></b></b></div>
+      <div class="rowr ua" style="top:570px"><b class="t"><b class="ar">▲</b><span>+10 4,430</span></b><b class="t off"><b class="ar">▲</b><span>+10 4,430</span></b><b class="t"><b class="ar">▲</b><span>+10 120</span></b><b class="t off"><b class="ar">▲</b><span>+10 4,430</span></b></div>
+    </div></div></div><figcaption>×10 — 칸마다 「+10 비용」, 모자란 칸만 잿빛 (비용은 예시)</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_up_b" data-choice-group="강화 버튼" data-choice-label="강화 B · 카드 밑 받침대">
+  <h2>B · 카드 밑 받침대 — 카드와 버튼이 한 덩어리</h2>
+  <p class="cap">강화 버튼이 <b>카드 아래 남색 받침대</b>가 되어 「이 아이를 올린다」가 바로 읽힙니다. 단위는 <b>둥근 다이얼(금빛 칸 = 지금 단위)</b> 하나, 일괄 강화도 같은 받침대 모양. 카드 줄은 34px 위로(지금 카드를 옮겨 놓음).<span class="cost">비용: 손가락이 화면 맨 아래 가장자리에 닿음 — 받침대 높이 32px 이상 필요.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er cl"></i>
+    <i class="mv ocd" style="top:562px"></i>
+    <div class="rowr ub" style="top:518px"><b class="qb0">?</b><b class="bulk">일괄 강화 · 4칸</b><b class="dial">×1</b></div>
+    <div class="rowr ub" style="top:646px"><b class="p"><img src="img/assets_ui_icon_gold.png" alt="바람 조각">▲ 443</b><b class="p"><img src="img/assets_ui_icon_gold.png" alt="바람 조각">▲ 443</b><b class="p"><img src="img/assets_ui_icon_gold.png" alt="바람 조각">▲ 12</b><b class="p"><img src="img/assets_ui_icon_gold.png" alt="바람 조각">▲ 443</b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="380" data-th="190" style="max-width:380px"><div class="tw" style="width:380px;height:190px"><div class="sub" style="--tx:-900px;--ty:-508px">
+      <i class="crop" style="right:12px;top:562px;width:344px;height:88px;background-position:-924px -600px"></i>
+      <div class="rowr ub" style="top:518px"><b class="qb0">?</b><b class="bulk off">일괄 강화 · 0칸</b><b class="dial mx">MAX</b></div>
+      <div class="rowr ub" style="top:646px"><b class="p off"><img src="img/assets_ui_icon_gold.png" alt="">▲ 443</b><b class="p off"><img src="img/assets_ui_icon_gold.png" alt="">▲ 443</b><b class="p off"><img src="img/assets_ui_icon_gold.png" alt="">▲ 12</b><b class="p off"><img src="img/assets_ui_icon_gold.png" alt="">▲ 443</b></div>
+    </div></div></div><figcaption>바람 조각 0 · MAX — 받침대가 잿빛, 다이얼 금빛 칸이 MAX 자리</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="380" data-th="190" style="max-width:380px"><div class="tw" style="width:380px;height:190px"><div class="sub" style="--tx:-900px;--ty:-508px">
+      <i class="crop" style="right:12px;top:562px;width:344px;height:88px;background-position:-924px -600px"></i>
+      <div class="rowr ub" style="top:518px"><b class="qb0">?</b><b class="bulk">일괄 강화 · 2칸</b><b class="dial m10">×10</b></div>
+      <div class="rowr ub" style="top:646px"><b class="p">+10 4,430</b><b class="p off">+10 4,430</b><b class="p">+10 120</b><b class="p off">+10 4,430</b></div>
+    </div></div></div><figcaption>×10 — 「+10 비용」, 모자란 받침대만 잿빛 (비용은 예시)</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_up_c" data-choice-group="강화 버튼" data-choice-label="강화 C · 모으는 막대">
+  <h2>C · 모으는 막대 — 비용까지 얼마나 모였는지</h2>
+  <p class="cap">버튼 안이 <b>모은 바람 조각 / 비용</b>만큼 차오르고, 다 차면 <b>금빛으로 반짝</b>입니다. 「곧 올릴 수 있다」가 보여 기다리는 재미가 생깁니다. 일괄 강화는 「올릴 수 있는 칸 3/4」, 단위는 점 세 개.<span class="cost">비용: 버튼마다 채움 계산이 매 프레임 바뀜 — 숫자는 그대로라 성능 영향은 작음.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er up"></i>
+    <div class="rowr uc" style="top:526px"><b class="qb0">?</b><b class="bulk">일괄 강화 <b>4/4</b></b><b class="mode">×1<i><u class="on"></u><u></u><u></u></i></b></div>
+    <div class="rowr uc" style="top:570px"><b class="g full"><i class="f"></i><span class="shine"></span><span>▲</span><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>443</span></b><b class="g full"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>443</span></b><b class="g full"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>12</span></b><b class="g full"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt="바람 조각"><span>443</span></b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="380" data-th="100" style="max-width:380px"><div class="tw" style="width:380px;height:100px"><div class="sub" style="--tx:-900px;--ty:-514px">
+      <div class="rowr uc" style="top:526px"><b class="qb0">?</b><b class="bulk">일괄 강화 <b>1/4</b></b><b class="mode">×1<i><u class="on"></u><u></u><u></u></i></b></div>
+      <div class="rowr uc" style="top:570px"><b class="g" style="--g:62%"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt=""><span>443</span></b><b class="g" style="--g:62%"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt=""><span>443</span></b><b class="g full"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt=""><span>12</span></b><b class="g" style="--g:62%"><i class="f"></i><span>▲</span><img src="img/assets_ui_icon_gold.png" alt=""><span>443</span></b></div>
+    </div></div></div><figcaption>바람 조각 275 — 세 칸은 62%까지 차오름, 12짜리만 금빛</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="380" data-th="100" style="max-width:380px"><div class="tw" style="width:380px;height:100px"><div class="sub" style="--tx:-900px;--ty:-514px">
+      <div class="rowr uc" style="top:526px"><b class="qb0">?</b><b class="bulk">일괄 강화 <b>0/4</b></b><b class="mode">MAX<i><u></u><u></u><u class="on"></u></i></b></div>
+      <div class="rowr uc" style="top:570px"><b class="g" style="--g:0%"><i class="f"></i><span>▲ 443</span></b><b class="g" style="--g:0%"><i class="f"></i><span>▲ 443</span></b><b class="g" style="--g:0%"><i class="f"></i><span>▲ 12</span></b><b class="g" style="--g:0%"><i class="f"></i><span>▲ 443</span></b></div>
+    </div></div></div><figcaption>바람 조각 0 · MAX — 빈 막대, 점 세 개 중 MAX 자리</figcaption></figure>
+  </div>
+</section>
+
+<!-- ======================================================= 3 -->
+<h3 id="g3">3 · 조작 줄 — 순풍 가속 · 복귀 · 자동/수동</h3>
+
+<section class="opt" data-choice="b1_ctrl_a" data-choice-group="조작 줄" data-choice-label="조작 줄 A · 한 판 세 칸">
+  <h2>A · 한 판 세 칸 — 보스 판과 같은 남색 기운 판 하나</h2>
+  <p class="cap">세 조작을 <b>남색 · 금 테 기운 판 하나</b>로 묶었습니다. 순풍은 위 넓은 칸(준비 = 산호 금빛 + 빛 훑음), 사용 중 = 파란 바람결 + 남은 시간 막대, 쿨타임 = 차분한 보라 + 다시 차오르는 막대.<span class="cost">비용: 판이 진해져 아래쪽 무게가 늘어남.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er ct"></i>
+    <div class="ca"><b class="w"><img src="img/assets_ui_kit_side_wind.png" alt="순풍"><span>순풍 가속!</span><span class="shine"></span></b><b class="r"><img src="img/assets_ui_icon_pearl.png" alt="구름 진주"><span>복귀 +3</span></b><b class="a off"><span>수동</span></b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="ca"><b class="w on" style="--pg:97%"><img src="img/assets_ui_kit_side_wind.png" alt=""><span>2배속 58초</span><i class="pg"></i></b><b class="r"><img src="img/assets_ui_icon_pearl.png" alt=""><span>복귀 +3</span></b><b class="a"><span>자동</span></b></div>
+    </div></div></div><figcaption>사용 중 · 자동 켜짐</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="ca"><b class="w cd" style="--pg:18%"><img src="img/assets_ui_kit_side_wind.png" alt=""><span>순풍 4:05</span><i class="pg"></i></b><b class="r"><img src="img/assets_ui_icon_pearl.png" alt=""><span>복귀 +3</span></b><b class="a off"><span>수동</span></b></div>
+    </div></div></div><figcaption>쿨타임 4:05 — 막대가 다시 차오름</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="ca"><b class="w lk"><img src="img/assets_ui_kit_side_wind.png" alt=""><span>바람 모으는 중</span></b><b class="r lk"><i class="lki"></i><span>Lv.4</span></b><b class="a off"><span>수동</span></b></div>
+    </div></div></div><figcaption>첫 항해 — 순풍 아직 · 복귀 잠김(항해사 Lv.4)</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="ca"><b class="w lk"><span>모험 중엔 순풍 없음</span></b><b class="r lk"><span>모험 중</span></b><b class="a"><span>자동</span></b></div>
+    </div></div></div><figcaption>모험 전투(#61) — 안 되는 이유를 칸 안에 (BT4-1과 맞춤)</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_ctrl_b" data-choice-group="조작 줄" data-choice-label="조작 줄 B · 순풍 돛">
+  <h2>B · 순풍 돛 — 순풍이 주인공, 복귀 · 자동은 옆 알약</h2>
+  <p class="cap">순풍 버튼이 <b>바람을 받은 돛</b> 모양이 됩니다. 사용 중에는 돛이 파랗게 바뀌고 <b>흰 바람결이 흐르며</b>, 쿨타임에는 돛이 잦아들고 <b>오른쪽 위 작은 시계</b>가 돕니다. 복귀 · 자동은 오른쪽 세로 알약 두 개.<span class="cost">비용: 돛 모양이라 글자 칸이 좁음 — 두 줄 문구 필요.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er ct"></i>
+    <div class="cb"><div class="sail"><svg viewBox="0 0 134 114" aria-hidden="true"><defs><linearGradient id="sv-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset="1" stop-color="#f5856b"/></linearGradient></defs><path d="M10 6 Q84 0 130 14 Q118 60 126 108 Q66 98 6 110 Q16 58 10 6Z" fill="url(#sv-a)" stroke="#fff" stroke-width="3"/><path d="M10 6 Q16 58 6 110" stroke="#e2b55c" stroke-width="5" fill="none"/></svg><div class="tx"><img src="img/assets_ui_kit_side_wind.png" alt="순풍">순풍<br>가속!</div></div>
+      <div class="pills"><b class="pl"><img src="img/assets_ui_icon_pearl.png" alt="구름 진주">복귀 +3</b><b class="pl">수동<small>궁극기</small></b></div></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="cb"><div class="sail on"><svg viewBox="0 0 134 114" aria-hidden="true"><defs><linearGradient id="sv-on" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9edcff"/><stop offset="1" stop-color="#3f8cff"/></linearGradient></defs><path d="M10 6 Q84 0 130 14 Q118 60 126 108 Q66 98 6 110 Q16 58 10 6Z" fill="url(#sv-on)" stroke="#fff" stroke-width="3"/><path d="M10 6 Q16 58 6 110" stroke="#e2b55c" stroke-width="5" fill="none"/><path class="wind" d="M24 34 Q70 26 118 36"/><path class="wind" d="M20 62 Q70 54 120 64" style="animation-delay:-.4s"/><path class="wind" d="M22 88 Q70 80 122 90" style="animation-delay:-.8s"/></svg><div class="tx">2배속<br><small>58초 남음</small></div></div>
+        <div class="pills"><b class="pl"><img src="img/assets_ui_icon_pearl.png" alt="">복귀 +3</b><b class="pl on">자동<small>궁극기</small></b></div></div>
+    </div></div></div><figcaption>사용 중 — 파란 돛 + 흐르는 바람결 · 자동 켜짐</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="cb"><div class="sail cd"><svg viewBox="0 0 134 114" aria-hidden="true"><path d="M10 10 Q70 8 120 22 Q112 64 118 108 Q64 100 6 110 Q14 60 10 10Z" fill="#6a5f93" stroke="#fff" stroke-width="3"/><path d="M10 10 Q14 60 6 110" stroke="#b9b3c9" stroke-width="5" fill="none"/></svg><i class="clock" style="--pg:18%"></i><div class="tx"><img src="img/assets_ui_kit_side_wind.png" alt="">4:05</div></div>
+        <div class="pills"><b class="pl"><img src="img/assets_ui_icon_pearl.png" alt="">복귀 +3</b><b class="pl">수동<small>궁극기</small></b></div></div>
+    </div></div></div><figcaption>쿨타임 — 돛이 잦아들고 작은 시계가 돎</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="cb"><div class="sail lk"><svg viewBox="0 0 134 114" aria-hidden="true"><path d="M10 10 Q70 8 120 22 Q112 64 118 108 Q64 100 6 110 Q14 60 10 10Z" fill="#7d7596" stroke="#fff" stroke-width="3"/><path d="M10 10 Q14 60 6 110" stroke="#b9b3c9" stroke-width="5" fill="none"/></svg><div class="tx" style="font-size:14px">바람<br>모으는 중</div></div>
+        <div class="pills"><b class="pl lk"><i class="lki"></i>Lv.4</b><b class="pl">수동<small>궁극기</small></b></div></div>
+    </div></div></div><figcaption>첫 항해 — 순풍 아직 · 복귀 잠김</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-560px">
+      <div class="cb"><div class="sail lk"><svg viewBox="0 0 134 114" aria-hidden="true"><path d="M10 10 Q70 8 120 22 Q112 64 118 108 Q64 100 6 110 Q14 60 10 10Z" fill="#7d7596" stroke="#fff" stroke-width="3"/><path d="M10 10 Q14 60 6 110" stroke="#b9b3c9" stroke-width="5" fill="none"/></svg><div class="tx" style="font-size:14px">모험 중엔<br>순풍 없음</div></div>
+        <div class="pills"><b class="pl lk">모험 중</b><b class="pl on">자동<small>궁극기</small></b></div></div>
+    </div></div></div><figcaption>모험 전투(#61) — 이유를 돛에</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_ctrl_c" data-choice-group="조작 줄" data-choice-label="조작 줄 C · 구슬 셋">
+  <h2>C · 구슬 셋 — 고래 숨결 구슬과 한 가족</h2>
+  <p class="cap">순풍은 <b>큰 구슬(고리 = 남은 시간)</b>, 복귀 · 자동은 작은 구슬 두 개가 비스듬히 붙습니다. 왼쪽 고래 숨결 구슬과 모양이 같아 <b>아래 줄이 「구슬 = 전투 기술」</b>로 읽힙니다.<span class="cost">비용: 구슬 셋이 위아래로 엇갈려 높이 120px — 순풍 이름은 아래 리본으로.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er ct"></i>
+    <div class="cc"><b class="o ow"><b class="core"><img src="img/assets_ui_kit_side_wind.png" alt="순풍"></b></b><b class="lb">순풍 가속!</b><b class="o sm rt"><img src="img/assets_ui_icon_pearl.png" alt="구름 진주">+3</b><b class="o sm au">수동</b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-570px">
+      <div class="cc"><b class="o ow on"><b class="core"><img src="img/assets_ui_kit_side_wind.png" alt=""></b><b class="big ol">58초</b></b><b class="lb">2배속</b><b class="o sm rt"><img src="img/assets_ui_icon_pearl.png" alt="">+3</b><b class="o sm au on">자동</b></div>
+    </div></div></div><figcaption>사용 중 — 파란 고리가 돎 · 자동 켜짐</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-570px">
+      <div class="cc"><b class="o ow cd" style="--pg:18%"><b class="core"><img src="img/assets_ui_kit_side_wind.png" alt=""></b><b class="big ol">4:05</b></b><b class="lb">순풍 쉬는 중</b><b class="o sm rt"><img src="img/assets_ui_icon_pearl.png" alt="">+3</b><b class="o sm au">수동</b></div>
+    </div></div></div><figcaption>쿨타임 — 보라 고리가 다시 차오름</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-570px">
+      <div class="cc"><b class="o ow lk"><b class="core"><img src="img/assets_ui_kit_side_wind.png" alt=""></b></b><b class="lb">바람 모으는 중</b><b class="o sm rt lk"><i class="lki"></i>Lv.4</b><b class="o sm au">수동</b></div>
+    </div></div></div><figcaption>첫 항해 — 순풍 아직 · 복귀 잠김</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="232" data-th="140" style="max-width:232px"><div class="tw" style="width:232px;height:140px"><div class="sub" style="--tx:-698px;--ty:-570px">
+      <div class="cc"><b class="o ow lk"><b class="core"><img src="img/assets_ui_kit_side_wind.png" alt=""></b></b><b class="lb">모험 중엔 없음</b><b class="o sm rt lk">모험</b><b class="o sm au on">자동</b></div>
+    </div></div></div><figcaption>모험 전투(#61) — 리본에 이유</figcaption></figure>
+  </div>
+</section>
+
+<!-- ======================================================= 4 -->
+<h3 id="g4">4 · 하단 메뉴 바 — 아이들 · 편성 · 소환 · 모험 · 분교 · 상점</h3>
+
+<section class="opt" data-choice="b1_nav_a" data-choice-group="메뉴 바" data-choice-label="메뉴 바 A · 기운 판 + 허브 물감">
+  <h2>A · 기운 판 + 허브 물감 방울 — 판 하나, 허브마다 색</h2>
+  <p class="cap">통합 판과 같은 <b>크림 기운 판</b> 위에서 아이콘마다 <b>허브 색 물감 방울</b>이 번집니다 (아이들 분홍 · 편성 보라 · 소환 금 · 모험 하늘 · 분교 민트 · 상점 산호 — 메뉴 공통 틀 D1-1과 같은 색). 빨간 점에 금 테.<span class="cost">비용: 가장 무난 — 지금과 배치가 같아 익숙함.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er mn"></i>
+    <div class="na"><b class="h hc0"><i class="dp"><img src="img/assets_ui_kit_nav_heroes.png" alt=""></i><span>아이들</span><i class="dot"></i></b><b class="h hc1"><i class="dp"><img src="img/assets_ui_kit_nav_formation.png" alt=""></i><span>편성</span></b><b class="h hc2"><i class="dp"><img src="img/assets_ui_kit_nav_summon.png" alt=""></i><span>소환</span><i class="dot"></i></b><b class="h hc3"><i class="dp"><img src="img/assets_ui_kit_nav_adventure.png" alt=""></i><span>모험</span></b><b class="h hc4"><i class="dp"><img src="img/assets_ui_kit_nav_school.png" alt=""></i><span>분교</span></b><b class="h hc5"><i class="dp"><img src="img/assets_ui_kit_nav_shop.png" alt=""></i><span>상점</span></b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="470" data-th="104" style="max-width:470px"><div class="tw" style="width:470px;height:104px"><div class="sub" style="--tx:0px;--ty:-616px">
+      <div class="na"><b class="h hc0"><i class="dp"><img src="img/assets_ui_kit_nav_heroes.png" alt=""></i><span>아이들</span><i class="dot"></i></b><b class="h hc1 lk"><i class="dp"><img src="img/assets_ui_kit_nav_formation.png" alt=""></i><span>편성</span><b class="lkc"><i class="lki"></i>Lv.2</b></b><b class="h hc2 lk"><i class="dp"><img src="img/assets_ui_kit_nav_summon.png" alt=""></i><span>소환</span><b class="lkc"><i class="lki"></i>Lv.2</b></b><b class="h hc3 lk"><i class="dp"><img src="img/assets_ui_kit_nav_adventure.png" alt=""></i><span>모험</span><b class="lkc"><i class="lki"></i>Lv.7</b></b><b class="h hc4 lk"><i class="dp"><img src="img/assets_ui_kit_nav_school.png" alt=""></i><span>분교</span><b class="lkc"><i class="lki"></i>Lv.5</b></b><b class="h hc5"><i class="dp"><img src="img/assets_ui_kit_nav_shop.png" alt=""></i><span>상점</span></b></div>
+    </div></div></div><figcaption>첫 접속 — 잠긴 허브는 흑백 + 자물쇠 「Lv.N」 한 줄 (B7 잠김 모양)</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="470" data-th="104" style="max-width:470px"><div class="tw" style="width:470px;height:104px"><div class="sub" style="--tx:0px;--ty:-616px">
+      <div class="na"><b class="h hc0 pr"><i class="dp"><img src="img/assets_ui_kit_nav_heroes.png" alt=""></i><span>아이들</span></b><b class="h hc1"><i class="dp"><img src="img/assets_ui_kit_nav_formation.png" alt=""></i><span>편성</span></b><b class="h hc2"><i class="dp"><img src="img/assets_ui_kit_nav_summon.png" alt=""></i><span>소환</span></b><b class="h hc3"><i class="dp"><img src="img/assets_ui_kit_nav_adventure.png" alt=""></i><span>모험</span></b><b class="h hc4 sp"><i class="dp"><img src="img/assets_ui_kit_nav_school.png" alt=""></i><span>분교</span></b><b class="h hc5"><i class="dp"><img src="img/assets_ui_kit_nav_shop.png" alt=""></i><span>상점</span></b></div>
+    </div></div></div><figcaption>분교 완성 반짝임 · 아이들 누름</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_nav_b" data-choice-group="메뉴 바" data-choice-label="메뉴 바 B · 구름 위 단추">
+  <h2>B · 구름 위 단추 — 판 없이 둥근 단추 여섯</h2>
+  <p class="cap">판을 없애고 <b>허브 색 테를 두른 둥근 단추</b>가 구름 위에 떠서 천천히 출렁입니다. 이름은 단추 아래 <b>남색 리본</b>. 고래 숨결 구슬 · (C를 고르면) 조작 구슬과 같은 둥근 말투.<span class="cost">비용: 판이 없어 밝은 구름 위에서 단추 테두리에 기대야 함.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er mn"></i>
+    <div class="nb"><b class="b hc0" style="--i:0"><i class="c"><img src="img/assets_ui_kit_nav_heroes.png" alt=""></i><span class="lb">아이들</span><i class="dot"></i></b><b class="b hc1" style="--i:1"><i class="c"><img src="img/assets_ui_kit_nav_formation.png" alt=""></i><span class="lb">편성</span></b><b class="b hc2" style="--i:2"><i class="c"><img src="img/assets_ui_kit_nav_summon.png" alt=""></i><span class="lb">소환</span><i class="dot"></i></b><b class="b hc3" style="--i:3"><i class="c"><img src="img/assets_ui_kit_nav_adventure.png" alt=""></i><span class="lb">모험</span></b><b class="b hc4" style="--i:4"><i class="c"><img src="img/assets_ui_kit_nav_school.png" alt=""></i><span class="lb">분교</span></b><b class="b hc5" style="--i:5"><i class="c"><img src="img/assets_ui_kit_nav_shop.png" alt=""></i><span class="lb">상점</span></b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="470" data-th="104" style="max-width:470px"><div class="tw" style="width:470px;height:104px"><div class="sub" style="--tx:0px;--ty:-616px">
+      <div class="nb"><b class="b hc0" style="--i:0"><i class="c"><img src="img/assets_ui_kit_nav_heroes.png" alt=""></i><span class="lb">아이들</span><i class="dot"></i></b><b class="b hc1 lk" style="--i:1"><i class="c"><img src="img/assets_ui_kit_nav_formation.png" alt=""></i><span class="lb">편성</span><b class="lkc"><i class="lki"></i>Lv.2</b></b><b class="b hc2 lk" style="--i:2"><i class="c"><img src="img/assets_ui_kit_nav_summon.png" alt=""></i><span class="lb">소환</span><b class="lkc"><i class="lki"></i>Lv.2</b></b><b class="b hc3 lk" style="--i:3"><i class="c"><img src="img/assets_ui_kit_nav_adventure.png" alt=""></i><span class="lb">모험</span><b class="lkc"><i class="lki"></i>Lv.7</b></b><b class="b hc4 lk" style="--i:4"><i class="c"><img src="img/assets_ui_kit_nav_school.png" alt=""></i><span class="lb">분교</span><b class="lkc"><i class="lki"></i>Lv.5</b></b><b class="b hc5" style="--i:5"><i class="c"><img src="img/assets_ui_kit_nav_shop.png" alt=""></i><span class="lb">상점</span></b></div>
+    </div></div></div><figcaption>첫 접속 — 잠긴 단추는 잿빛 테 + 자물쇠 「Lv.N」</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="470" data-th="104" style="max-width:470px"><div class="tw" style="width:470px;height:104px"><div class="sub" style="--tx:0px;--ty:-616px">
+      <div class="nb"><b class="b hc0 pr" style="--i:0"><i class="c"><img src="img/assets_ui_kit_nav_heroes.png" alt=""></i><span class="lb">아이들</span></b><b class="b hc1" style="--i:1"><i class="c"><img src="img/assets_ui_kit_nav_formation.png" alt=""></i><span class="lb">편성</span></b><b class="b hc2" style="--i:2"><i class="c"><img src="img/assets_ui_kit_nav_summon.png" alt=""></i><span class="lb">소환</span></b><b class="b hc3" style="--i:3"><i class="c"><img src="img/assets_ui_kit_nav_adventure.png" alt=""></i><span class="lb">모험</span></b><b class="b hc4 sp" style="--i:4"><i class="c"><img src="img/assets_ui_kit_nav_school.png" alt=""></i><span class="lb">분교</span></b><b class="b hc5" style="--i:5"><i class="c"><img src="img/assets_ui_kit_nav_shop.png" alt=""></i><span class="lb">상점</span></b></div>
+    </div></div></div><figcaption>분교 완성 반짝임 · 아이들 누름</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_nav_c" data-choice-group="메뉴 바" data-choice-label="메뉴 바 C · 남색 띠 + 이유 꼬리표">
+  <h2>C · 남색 띠 + 이유 꼬리표 — 빨간 점 대신 「왜」</h2>
+  <p class="cap">보스 판과 같은 <b>남색 · 금 테 띠</b>가 아래를 단단히 잡고, 빨간 점 대신 <b>금빛 꼬리표에 할 일</b>(「성장 가능」 「무료 소환」)을 적습니다 (빨간 점 규칙 PD #46과 같은 조건).<span class="cost">비용: 꼬리표 두세 개가 동시에 뜨면 위쪽이 붐빔 — 최대 2개.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er mn"></i>
+    <div class="nc"><b class="h"><img src="img/assets_ui_kit_nav_heroes.png" alt=""><span>아이들</span><b class="why">성장 가능</b></b><b class="h"><img src="img/assets_ui_kit_nav_formation.png" alt=""><span>편성</span></b><b class="h"><img src="img/assets_ui_kit_nav_summon.png" alt=""><span>소환</span><b class="why">무료 소환</b></b><b class="h"><img src="img/assets_ui_kit_nav_adventure.png" alt=""><span>모험</span></b><b class="h"><img src="img/assets_ui_kit_nav_school.png" alt=""><span>분교</span></b><b class="h"><img src="img/assets_ui_kit_nav_shop.png" alt=""><span>상점</span></b></div>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="470" data-th="104" style="max-width:470px"><div class="tw" style="width:470px;height:104px"><div class="sub" style="--tx:0px;--ty:-616px">
+      <div class="nc"><b class="h"><img src="img/assets_ui_kit_nav_heroes.png" alt=""><span>아이들</span></b><b class="h lk"><img src="img/assets_ui_kit_nav_formation.png" alt=""><span>편성</span><b class="lkc"><i class="lki"></i>Lv.2</b></b><b class="h lk"><img src="img/assets_ui_kit_nav_summon.png" alt=""><span>소환</span><b class="lkc"><i class="lki"></i>Lv.2</b></b><b class="h lk"><img src="img/assets_ui_kit_nav_adventure.png" alt=""><span>모험</span><b class="lkc"><i class="lki"></i>Lv.7</b></b><b class="h lk"><img src="img/assets_ui_kit_nav_school.png" alt=""><span>분교</span><b class="lkc"><i class="lki"></i>Lv.5</b></b><b class="h"><img src="img/assets_ui_kit_nav_shop.png" alt=""><span>상점</span></b></div>
+    </div></div></div><figcaption>첫 접속 — 잠긴 허브 흐림 + 「Lv.N」</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="470" data-th="104" style="max-width:470px"><div class="tw" style="width:470px;height:104px"><div class="sub" style="--tx:0px;--ty:-616px">
+      <div class="nc"><b class="h"><img src="img/assets_ui_kit_nav_heroes.png" alt=""><span>아이들</span></b><b class="h"><img src="img/assets_ui_kit_nav_formation.png" alt=""><span>편성</span><b class="why">빈 칸 1</b></b><b class="h"><img src="img/assets_ui_kit_nav_summon.png" alt=""><span>소환</span></b><b class="h"><img src="img/assets_ui_kit_nav_adventure.png" alt=""><span>모험</span></b><b class="h sp"><img src="img/assets_ui_kit_nav_school.png" alt=""><span>분교</span><b class="why">교실 완성</b></b><b class="h"><img src="img/assets_ui_kit_nav_shop.png" alt=""><span>상점</span></b></div>
+    </div></div></div><figcaption>편성 빈 칸 · 분교 완성 (반짝임 + 꼬리표)</figcaption></figure>
+  </div>
+</section>
+
+<!-- ======================================================= 5 -->
+<h3 id="g5">5 · 퀘스트 카드 — 진행 · 보상 받기 · 이어서 안내</h3>
+
+<section class="opt" data-choice="b1_quest_a" data-choice-group="퀘스트 카드" data-choice-label="퀘스트 A · 기운 리본">
+  <h2>A · 기운 리본 — 통합 판과 이어지는 기울기, 보상 메달</h2>
+  <p class="cap">왼쪽 <b>보라 번호 탭(19)</b> · 가운데 할 일과 굵은 진행 막대 · 오른쪽 <b>금빛 보상 메달</b>. 완료되면 리본 전체가 금빛이 되고 <b>「보상 받기!」 도장</b>이 찍히며 메달이 숨 쉽니다. 「이어서 안내」 꼬리표(a)는 그대로 아래에 걸림.<span class="cost">비용: 지금과 크기 같음.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er q1"></i><i class="er q2"></i>
+    <div class="qa" style="--q:4%"><b class="no"><small>QUEST</small><b>19</b></b><div class="tx"><div class="t0"><span>퀘스트 19</span><b>0 / 1</b></div><div class="t1">「편성」에서 카렌을 「선두」에 세우기</div><div class="pb"><i></i></div></div><b class="md"><img src="img/assets_ui_icon_gem.png" alt="채색석"><b>200</b></b></div>
+    <b class="resume">이어서 안내 ▶</b>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="420" data-th="120" style="max-width:420px"><div class="tw" style="width:420px;height:120px"><div class="sub" style="--tx:0px;--ty:-116px">
+      <div class="qa rd" style="--q:100%"><b class="no"><small>QUEST</small><b>19</b></b><div class="tx"><div class="t0"><span>퀘스트 19</span><b>1 / 1</b></div><div class="t1">「편성」에서 카렌을 「선두」에 세우기</div><div class="pb"><i></i></div></div><b class="md"><img src="img/assets_ui_icon_gem.png" alt=""><b>200</b></b><b class="stamp">보상 받기!</b></div>
+    </div></div></div><figcaption>완료 — 금빛 리본 + 도장, 메달이 숨 쉼</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="420" data-th="120" style="max-width:420px"><div class="tw" style="width:420px;height:120px"><div class="sub" style="--tx:0px;--ty:-116px">
+      <div class="qa slide" style="--q:0%"><b class="no"><small>QUEST</small><b>16</b></b><div class="tx"><div class="t0"><span>퀘스트 16</span><b>0 / 4</b></div><div class="t1">「편성」에서 미오와 새 친구를 갑판에 올리기 (4명)</div><div class="pb"><i></i></div></div><b class="md"><img src="img/assets_ui_icon_gem.png" alt=""><b>400</b></b></div>
+    </div></div></div><figcaption>받은 뒤 다음 퀘스트가 왼쪽에서 밀려 들어옴 · 긴 문구는 끝을 줄임표로 (번호 · 문구는 실제 퀘스트 예시)</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_quest_b" data-choice-group="퀘스트 카드" data-choice-label="퀘스트 B · 핀 꽂은 메모지">
+  <h2>B · 핀 꽂은 메모지 — 할 일 쪽지, 완료 = 붉은 도장</h2>
+  <p class="cap">줄 노트 종이에 <b>금빛 클립</b>, 할 일 앞 체크 칸, 오른쪽 <b>점선 보상 동그라미</b>. 완료되면 체크가 채워지고 <b>붉은 「완료!」 도장</b>, 보상 동그라미가 금빛으로 빛납니다. 아틀리에(그림 작업실) 책상 위 메모 느낌.<span class="cost">비용: 기울어진 종이라 통합 판(a)과 결이 조금 다름 — 의도된 대비.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er q1"></i><i class="er q2"></i>
+    <div class="qb"><i class="clip"></i><div class="h">퀘스트 19</div><div class="row"><i class="ck"></i><span>「편성」에서 카렌을 「선두」에 세우기</span></div><b class="cn">0/1</b><b class="rw"><img src="img/assets_ui_icon_gem.png" alt="채색석">200</b></div>
+    <b class="resume" style="top:212px">이어서 안내 ▶</b>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="420" data-th="120" style="max-width:420px"><div class="tw" style="width:420px;height:120px"><div class="sub" style="--tx:0px;--ty:-116px">
+      <div class="qb rd"><i class="clip"></i><div class="h">퀘스트 19</div><div class="row"><i class="ck"></i><span>「편성」에서 카렌을 「선두」에 세우기</span></div><b class="cn">1/1</b><b class="rw"><img src="img/assets_ui_icon_gem.png" alt="">200</b><b class="ink">완료!</b></div>
+    </div></div></div><figcaption>완료 — 체크 · 붉은 도장 · 보상 동그라미 빛남</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="420" data-th="120" style="max-width:420px"><div class="tw" style="width:420px;height:120px"><div class="sub" style="--tx:0px;--ty:-116px">
+      <div class="qb slide"><i class="clip"></i><div class="h">퀘스트 16</div><div class="row"><i class="ck"></i><span>「편성」에서 미오와 새 친구를 갑판에 올리기 (4명)</span></div><b class="cn">0/4</b><b class="rw"><img src="img/assets_ui_icon_gem.png" alt="">400</b></div>
+    </div></div></div><figcaption>다음 쪽지가 밀려 들어옴 · 긴 문구 줄임표</figcaption></figure>
+  </div>
+</section>
+
+<section class="opt" data-choice="b1_quest_c" data-choice-group="퀘스트 카드" data-choice-label="퀘스트 C · 접힌 알약">
+  <h2>C · 접힌 알약 — 평소 한 줄, 완료 · 누를 때 펼침</h2>
+  <p class="cap">평소에는 <b>높이 50px 알약 한 줄</b>(아이콘 · 짧은 할 일 · 0/1 · 보상)이라 왼쪽 버튼들이 30px 위로 올라올 수 있습니다. <b>완료되면 금빛 알약</b>, 누르면 전체 문구와 진행 막대가 <b>펼쳐집니다</b>.<span class="cost">비용: 긴 문구는 평소에 잘림 — 펼쳐야 다 보임.</span></p>
+  <div class="vp"><div class="scr">
+    <img class="bg w12" src="orig/hud_1280.jpg" alt="전투 바탕 1280"><img class="bg w16" src="orig/hud_1600.jpg" alt="전투 바탕 1600">
+    <i class="er q1"></i><i class="er q2"></i>
+    <div class="qc"><b class="ic"><img src="img/assets_ui_kit_side_quest.png" alt="퀘스트"></b><span class="t1">카렌을 「선두」에 세우기</span><b class="cn">0/1</b><b class="rw"><img src="img/assets_ui_icon_gem.png" alt="채색석">200</b></div>
+    <b class="resume" style="top:194px">이어서 안내 ▶</b>
+  </div></div>
+  <p class="fl">상태</p>
+  <div class="tiles">
+    <figure class="tile"><div class="tv" data-tw="420" data-th="120" style="max-width:420px"><div class="tw" style="width:420px;height:120px"><div class="sub" style="--tx:0px;--ty:-116px">
+      <div class="qc rd"><b class="ic"><img src="img/assets_ui_kit_side_quest.png" alt=""></b><span class="t1">보상 받기!</span><b class="cn">1/1</b><b class="rw"><img src="img/assets_ui_icon_gem.png" alt="">200</b></div>
+    </div></div></div><figcaption>완료 — 금빛 알약, 보상이 숨 쉼</figcaption></figure>
+    <figure class="tile"><div class="tv" data-tw="420" data-th="120" style="max-width:420px"><div class="tw" style="width:420px;height:120px"><div class="sub" style="--tx:0px;--ty:-116px">
+      <div class="qc ex" style="--q:0%"><b class="ic"><img src="img/assets_ui_kit_side_quest.png" alt=""></b><div class="tx"><span class="t1">퀘스트 16 · 「편성」에서 미오와 새 친구를 갑판에 올리기 (4명)</span><div class="pb"><i></i></div></div><b class="cn">0/4</b><b class="rw"><img src="img/assets_ui_icon_gem.png" alt="">400</b></div>
+    </div></div></div><figcaption>누르면 펼침 — 전체 문구 두 줄 + 진행 막대</figcaption></figure>
+  </div>
+</section>
+</main>
+<script>
+// 얼굴 기준점: scripts/ui/portrait_anchors.gd ANCHORS [얼굴 가운데 x, y, 얼굴 높이, 원본 폭, 높이]
+const A={yerin:[261,205,130,404,751],yuna:[323,186,131,553,698],serena:[330,201,121,557,684],juhee:[249,195,113,465,680],arca:[617,389,198,1094,1382]};
+document.querySelectorAll('.pf[data-id]').forEach(el=>{
+  const a=A[el.dataset.id],bw=+el.dataset.bw,bh=+el.dataset.bh,z=+(el.dataset.z||2.3),cy=+(el.dataset.cy||.46);
+  const k=bh/(a[2]*z);
+  el.style.backgroundSize=`${a[3]*k}px ${a[4]*k}px`;
+  el.style.backgroundPosition=`${bw/2-a[0]*k}px ${bh*cy-a[1]*k}px`;
+});
+const fit=()=>{
+  document.querySelectorAll('.vp').forEach(v=>{const s=v.querySelector('.scr');const k=v.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;v.style.height=s.offsetHeight*k+'px'});
+  document.querySelectorAll('.tv').forEach(v=>{const w=+v.dataset.tw,h=+v.dataset.th,k=Math.min(1,v.clientWidth/w);v.firstElementChild.style.transform=`scale(${k})`;v.style.height=h*k+'px'});
+};
+let lastW=0;new ResizeObserver(()=>{const w=document.body.clientWidth;if(w!==lastW){lastW=w;requestAnimationFrame(fit)}}).observe(document.body);
+document.querySelectorAll('.bar [data-res]').forEach(b=>b.addEventListener('click',()=>{document.documentElement.style.setProperty('--w',b.dataset.res);document.documentElement.dataset.w=b.dataset.res;document.querySelectorAll('.bar [data-res]').forEach(x=>x.setAttribute('aria-pressed',x===b));fit()}));
+document.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>document.querySelectorAll(`.opt[data-choice-group="${o.dataset.choiceGroup}"]`).forEach(x=>x.classList.toggle('sel',x===o))));
+fit();
+</script>
+</body>
+</html>

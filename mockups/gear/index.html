@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레인보우 아틀리에 시안 · 장비 (#52 #53)</title>
+<style>
+:root{--navy:#2e2350;--lav:#8b74e8;--gold:#d9a52b;--cream:#fff8ec;--line:#e2dbf5;--w:1280}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#f3f0fa;color:var(--navy);font-family:"Pretendard","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.45}
+.page{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+.page>h1{font-size:22px;margin:0 0 4px}
+.lead{margin:0 0 14px;font-size:14px;color:#5a5180}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:13px}
+.bar button{font:inherit;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #c9bff0;background:#fff;color:var(--navy);cursor:pointer}
+.bar button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ref,.opt{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 18px}
+.opt{cursor:pointer}
+.opt[data-choice-selected],.opt.sel{outline:3px solid var(--lav);outline-offset:2px}
+.opt h2,.ref h2{font-size:17px;margin:0 0 2px}
+.cap{margin:0 0 10px;font-size:14px;color:#4c4374}
+.vp{position:relative;width:100%;overflow:hidden;border-radius:8px;background:#1d1838}
+.scr{position:absolute;left:0;top:0;width:calc(var(--w)*1px);height:720px;transform-origin:0 0;overflow:hidden;font-size:16px}
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.refs figure{margin:0}.refs img{width:100%;display:block;border-radius:8px}.refs figcaption{font-size:12px;color:#6a6290;margin-top:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.bgcap{position:absolute;inset:-20px;background:url(img/artifacts_polish_after_stage_boss_1280x720.png) center/cover;filter:blur(6px) brightness(.5)}
+.close{position:absolute;right:18px;top:14px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;font-size:24px;font-weight:800;color:var(--navy);z-index:5}
+.i{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff;color:#5b44c4;font-weight:900;font-style:italic;font-family:Georgia,serif;font-size:17px;box-shadow:0 0 0 2px var(--lav);flex:none}
+.i.on{background:#5b44c4;color:#fff}
+.tip{position:absolute;width:330px;background:var(--navy);color:#fff;border-radius:14px;padding:12px 16px;font-size:15px;line-height:1.5;box-shadow:0 12px 24px rgba(0,0,0,.35);z-index:6}
+.tip b{color:#ffe7a6}
+.tip::after{content:"";position:absolute;width:16px;height:16px;background:var(--navy);transform:rotate(45deg)}
+.tip.dn::after{left:40px;bottom:-8px}.tip.up::after{left:40px;top:-8px}.tip.r::after{left:auto;right:12px}
+.item{position:relative;width:150px;height:150px;border-radius:30px;background:radial-gradient(circle at 50% 40%,#fff3cf,#ffb020 70%,#b87800);box-shadow:0 0 0 5px #fff,0 0 34px rgba(255,176,32,.8)}
+.item img{position:absolute;inset:16px;width:118px;height:118px}
+.item b{position:absolute;right:8px;bottom:2px;font-size:36px;font-weight:900;color:#fff;-webkit-text-stroke:2px #5a3a00}
+.pl{display:flex;align-items:center;gap:10px;height:52px;padding:0 12px;border-radius:12px;background:#fff;font-weight:800;font-size:18px;margin-bottom:8px;box-shadow:0 1px 0 #e2dbf5}
+.pl .sw{width:12px;align-self:stretch;margin:8px 0;border-radius:6px;background:#5d6b84}
+.pl .lk{margin-left:auto;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:#f3f0fa;font-size:20px}
+.pl .lk.on{background:#ffe7a6;box-shadow:inset 0 0 0 2px var(--gold)}
+.cbtn{display:flex;align-items:center;gap:10px;min-height:60px;padding:0 18px;border-radius:16px;font-weight:800;font-size:18px;color:#fff}
+.cbtn .cost{margin-left:auto;background:rgba(0,0,0,.18);padding:4px 10px;border-radius:12px;font-size:16px}
+.dust{background:linear-gradient(180deg,#a7b4c9,#7d8aa3);box-shadow:0 4px 0 #56617a}
+.rain{background:linear-gradient(90deg,#ff7fae,#ffb35c,#7fd8a0,#6cb8ff,#a98bff);box-shadow:0 4px 0 #6b55c6;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.enh{background:linear-gradient(180deg,#ffb36b,#ff8a5c);box-shadow:0 4px 0 #c95f2f}
+.plain{background:#fff;color:var(--navy);box-shadow:0 3px 0 #d9d0f3}
+
+/* A 공방 */
+.A .bench{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,#5b4a9e 0,#2a1f5c 70%)}
+.A .bench::before{content:"";position:absolute;left:50%;top:150px;width:620px;height:620px;margin-left:-310px;border-radius:50%;background:repeating-conic-gradient(rgba(255,231,166,.10) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 65%);mask:radial-gradient(circle,#000 20%,transparent 65%);animation:spin 50s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.A .ped{position:absolute;left:50%;top:420px;width:300px;height:70px;margin-left:-150px;border-radius:50%;background:radial-gradient(ellipse,#ffe7a6,rgba(255,176,32,.25) 50%,transparent 70%)}
+.A .item{position:absolute;left:50%;top:230px;margin-left:-75px;animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.A .ttl{position:absolute;left:0;right:0;top:40px;text-align:center;color:#fff}
+.A .ttl b{font-size:30px;font-weight:900;color:#ffd36b}
+.A .ttl div{font-size:20px;font-weight:700}
+.A .main{position:absolute;left:50%;top:460px;transform:translateX(-50%);color:#fff;font-size:24px;font-weight:900;text-align:center;white-space:nowrap}
+.A .main small{display:block;font-size:15px;color:#d8ccff;font-weight:700}
+.A .lft{position:absolute;left:30px;top:120px;width:320px;background:var(--cream);border-radius:20px;padding:18px}
+.A .lft h5,.A .rgt h5{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:8px}
+.A .pips{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:14px}
+.A .pips i{height:12px;border-radius:3px;background:#ffb020}
+.A .set{margin-top:16px;padding-top:12px;border-top:2px dashed #e2dbf5;font-size:16px;font-weight:700}
+.A .set span{display:inline-block;padding:2px 8px;border-radius:8px;background:#ece7ff;margin-right:6px;font-size:14px}
+.A .rgt{position:absolute;right:30px;top:120px;width:400px;background:var(--cream);border-radius:20px;padding:18px}
+.A .pots{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.A .pots .row{display:flex;align-items:center;gap:8px}
+.A .pots .cbtn{flex:1}
+.A .foot{position:absolute;left:30px;bottom:24px;display:flex;gap:12px}
+.A .foot .cbtn{min-width:180px;justify-content:center}
+
+/* B 두 면 */
+.B .sheet{position:absolute;left:50%;top:40px;width:760px;height:640px;margin-left:-380px;background:var(--cream);border-radius:28px;box-shadow:0 0 0 4px #fff,0 30px 60px rgba(0,0,0,.45);overflow:hidden}
+.B .head{display:flex;gap:20px;align-items:center;padding:22px 26px 14px;background:linear-gradient(90deg,#fff3cf,#fffaf0)}
+.B .head .item{width:110px;height:110px;border-radius:24px}
+.B .head .item img{inset:12px;width:86px;height:86px}
+.B .head .item b{font-size:26px}
+.B .head h4{margin:0;font-size:26px;font-weight:900;color:#a8700a}
+.B .head p{margin:4px 0 0;font-size:20px;font-weight:800}
+.B .tabs{display:flex;padding:0 26px;gap:6px;border-bottom:3px solid #e2dbf5}
+.B .tabs b{min-height:50px;padding:0 26px;display:grid;place-items:center;font-size:18px;border-radius:14px 14px 0 0;background:#ece7ff;color:#6a6290}
+.B .tabs b.on{background:var(--navy);color:#fff}
+.B .body{padding:18px 26px}
+.B .grade{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800;margin-bottom:10px}
+.B .grade span{padding:2px 10px;border-radius:8px;background:#5d6b84;color:#fff}
+.B .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.B .two .w{display:flex;align-items:center;gap:8px}
+.B .two .cbtn{flex:1}
+.B .pity{margin-top:10px;font-size:14px;color:#6a6290;font-weight:700}
+.B .pity .rail{display:inline-block;width:160px;height:10px;border-radius:5px;background:#ece7ff;vertical-align:middle;margin:0 6px;overflow:hidden}
+.B .pity .rail i{display:block;height:100%;width:30%;background:linear-gradient(90deg,#ff7fae,#a98bff)}
+.B .dock{display:flex;gap:10px;margin-top:8px}
+.B .dock .cbtn{min-height:44px;min-width:110px;justify-content:center;font-size:16px}
+
+/* C 가방 + 시트 */
+.C .wrap{position:absolute;inset:16px;background:var(--cream);border-radius:24px}
+.C .hero{position:absolute;left:30px;top:30px;width:290px;bottom:330px}
+.C .hero .pf{width:120px;height:120px;border-radius:50%;background:url(img/assets_brand_title_karen.png) 50% 6%/175% auto no-repeat #ffd3d3;box-shadow:0 0 0 4px #fff,0 0 0 6px #ff5f4f}
+.C .hero b{font-size:22px}
+.C .slots{position:absolute;left:170px;top:30px;display:grid;grid-template-columns:repeat(2,64px);gap:10px}
+.C .sl{width:64px;height:64px;border-radius:14px;background:#fff;display:grid;place-items:center;box-shadow:0 2px 0 #e2dbf5;position:relative}
+.C .sl img{width:50px;height:50px}
+.C .sl.lg{background:radial-gradient(circle,#fff3cf,#ffb020);box-shadow:0 0 0 3px var(--lav)}
+.C .bag{position:absolute;left:350px;right:30px;top:30px;height:330px}
+.C .bag h5{margin:0 0 10px;font-size:19px;display:flex;gap:8px;align-items:center}
+.C .bag h5 .tg{min-height:44px;padding:0 16px;border-radius:22px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:16px;margin-left:auto}
+.C .g{display:grid;grid-template-columns:repeat(auto-fill,76px);gap:10px}
+.C .g div{width:76px;height:76px;border-radius:14px;display:grid;place-items:center;position:relative}
+.C .g img{width:58px;height:58px}
+.C .g small{position:absolute;right:4px;bottom:0;font-weight:900;color:#fff;-webkit-text-stroke:1px #3b2c7a;font-size:15px}
+.C .sh{position:absolute;left:16px;right:16px;bottom:16px;height:300px;background:#fff;border-radius:24px 24px 24px 24px;box-shadow:0 -10px 30px rgba(46,35,80,.2);padding:18px 24px}
+.C .sh .item{position:absolute;left:24px;top:22px;width:120px;height:120px;border-radius:24px}
+.C .sh .item img{inset:12px;width:96px;height:96px}
+.C .sh .item b{font-size:28px}
+.C .sh .nm{position:absolute;left:170px;top:20px}
+.C .sh .nm h4{margin:0;font-size:24px;color:#a8700a}
+.C .sh .nm p{margin:2px 0 0;font-size:20px;font-weight:800}
+.C .sh .lines{position:absolute;left:170px;top:96px;width:430px}
+.C .sh .lines .pl{height:44px;font-size:16px;margin-bottom:6px}
+.C .sh .lines .pl .lk{width:40px;height:40px}
+.C .sh .acts{position:absolute;right:24px;top:20px;width:calc(100% - 660px);display:grid;grid-template-columns:1fr 1fr;gap:42px 12px}
+.C .sh .acts .cbtn{justify-content:center;font-size:17px;min-height:64px;position:relative}
+.C .coach{position:absolute;left:8px;right:8px;bottom:-30px;text-align:center;font-size:14px;font-weight:800;color:var(--navy);background:#ffe36b;border-radius:10px;padding:3px 6px;box-shadow:0 2px 0 #b8a020;line-height:1.3;text-shadow:none}
+</style>
+</head>
+<body>
+<main class="page">
+<h1>장비 (#52 · #53)</h1>
+<p class="lead">문장을 걷어 내고, 모든 버튼 옆 <b>ⓘ</b>를 누르면 짧은 설명이 뜹니다(각 시안에 한 개씩 열린 모습). 세 시안은 <b>장비 한 개를 다루는 방식</b>이 다릅니다 — 작업대 / 탭 카드 / 가방 + 아래 시트. 장비는 지금 게임의 「전설 리본 4단계 +20」 예시입니다.</p>
+<div class="bar"><button type="button" data-res="1280" aria-pressed="true">1280×720</button><button type="button" data-res="1600" aria-pressed="false">1600×720</button></div>
+
+<section class="ref">
+  <h2>지금 게임</h2>
+  <p class="cap">재료 · 천장 · 잠금 규칙이 작은 회색 문장으로 겹겹이 적혀 있고, 「잠재 덧칠」 · 「무지개 덧칠」이 무엇이 다른지 설명이 없습니다.</p>
+  <div class="refs"><figure><img src="img/artifacts_polish_after_gear_promotion_1280x720.png" alt="지금 장비 상세 창"><figcaption>artifacts/polish/after/gear_promotion_1280x720.png</figcaption></figure><figure><img src="img/artifacts_polish_after_gear_sets_1280x720.png" alt="지금 장비 세트 화면"><figcaption>artifacts/polish/after/gear_sets_1280x720.png</figcaption></figure></div>
+</section>
+
+<section class="opt" data-choice="gear_a" data-choice-group="gear" data-choice-label="A · 공방 작업대">
+  <h2>A · 공방 작업대 — 장비 하나가 주인공</h2>
+  <p class="cap">가운데 받침대 위에 장비가 떠 있고, 왼쪽은 강화, 오른쪽은 잠재 3줄과 물감통 두 개(덧칠)로 나눴습니다.</p>
+  <div class="vp"><div class="scr A">
+    <div class="bench"></div><span class="close">✕</span>
+    <div class="ttl"><b>전설 리본</b><div>4단계 · 별빛 합창</div></div>
+    <div class="ped"></div><div class="item"><img src="img/assets_ui_gear_ribbon.png" alt="리본"><b>+20</b></div>
+    <div class="main"><small>주능력</small>공격 +56.6%</div>
+    <div class="lft">
+      <h5>강화 <span style="margin-left:auto;font-size:16px">20 / 20</span><span class="i">i</span></h5>
+      <div class="pips"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="cbtn enh">신화 승격<span class="cost">✦ 1,200</span></div>
+      <div style="margin-top:8px;font-size:15px;font-weight:700;color:#6a6290">재료 리본 2 / 2 ✓</div>
+      <div class="set"><span>2세트</span>공격 +8%<br><span>4세트</span>쿨 −8% · 치명 +4%</div>
+    </div>
+    <div class="rgt">
+      <h5>잠재 <span style="padding:2px 10px;border-radius:8px;background:#5d6b84;color:#fff;font-size:15px">은빛</span></h5>
+      <div class="pl"><span class="sw"></span>보호막 +6.4%<span class="lk on" aria-label="잠금">🔒</span></div>
+      <div class="pl"><span class="sw"></span>공격 +4.1%<span class="lk" aria-label="잠금 안 함">🔓</span></div>
+      <div class="pl"><span class="sw"></span>보스 피해 +6.2%<span class="lk" aria-label="잠금 안 함">🔓</span></div>
+      <div class="pots">
+        <div class="row"><div class="cbtn dust">잠재 덧칠<span class="cost">✦ 40</span></div><span class="i">i</span></div>
+        <div class="row"><div class="cbtn rain">무지개 덧칠<span class="cost">◆ 60</span></div><span class="i on">i</span></div>
+      </div>
+    </div>
+    <div class="tip up r" style="right:30px;top:600px;width:400px"><b>무지개 덧칠</b> · 채색석으로 3줄을 다시 칠해요. <b>🔒 최대 2줄</b>을 지킬 수 있고(잠글수록 비싸요), 은빛은 <b>10번 안에 등급이 꼭</b> 올라요.</div>
+    <div class="foot"><div class="cbtn plain">유나에게 장착</div><div class="cbtn plain">분해 ✦ +1,984</div></div>
+  </div></div>
+</section>
+
+<section class="opt" data-choice="gear_b" data-choice-group="gear" data-choice-label="B · 탭 카드">
+  <h2>B · 탭 카드 — 한 번에 한 가지만</h2>
+  <p class="cap">카드 한 장에 「강화 · 덧칠 · 세트」 탭을 두어 한 번에 한 일만 보이고, ⓘ 설명은 버튼 바로 아래에 펼쳐집니다.</p>
+  <div class="vp"><div class="scr B">
+    <div class="bgcap"></div>
+    <div class="sheet"><span class="close" style="top:18px">✕</span>
+      <div class="head"><div class="item"><img src="img/assets_ui_gear_ribbon.png" alt="리본"><b>+20</b></div><div><h4>전설 리본 4단계</h4><p>공격 +56.6%</p><div class="dock"><div class="cbtn plain">장착</div><div class="cbtn plain">분해</div></div></div></div>
+      <div class="tabs"><b>강화</b><b class="on">덧칠</b><b>세트</b></div>
+      <div class="body">
+        <div class="grade">잠재 <span>은빛</span><span class="i" style="margin-left:4px">i</span></div>
+        <div class="pl"><span class="sw"></span>보호막 +6.4%<span class="lk on" aria-label="잠금">🔒</span></div>
+        <div class="pl"><span class="sw"></span>공격 +4.1%<span class="lk" aria-label="잠금 안 함">🔓</span></div>
+        <div class="pl"><span class="sw"></span>보스 피해 +6.2%<span class="lk" aria-label="잠금 안 함">🔓</span></div>
+        <div class="two">
+          <div class="w"><div class="cbtn dust">잠재 덧칠<span class="cost">✦ 40</span></div><span class="i on">i</span></div>
+          <div class="w"><div class="cbtn rain">무지개 덧칠<span class="cost">◆ 60</span></div><span class="i">i</span></div>
+        </div>
+        <div class="pity">보랏빛까지 <span class="rail"><i></i></span> 3 / 10</div>
+      </div>
+      <div class="tip up" style="left:26px;top:556px;width:340px"><b>잠재 덧칠</b> · 색가루로 3줄을 새로 칠해요. 줄은 지킬 수 없고, 가끔 등급이 올라요.</div>
+    </div>
+  </div></div>
+</section>
+
+<section class="opt" data-choice="gear_c" data-choice-group="gear" data-choice-label="C · 가방 + 아래 시트">
+  <h2>C · 가방 + 아래 시트 — 많이 고르고 빨리 바꾸기</h2>
+  <p class="cap">위는 아이의 4칸과 가방, 장비를 누르면 아래 시트가 올라오고; 오른쪽 위 「? 도움말」을 켜면 모든 버튼에 한 줄 설명이 한꺼번에 붙습니다.</p>
+  <div class="vp"><div class="scr C">
+    <div class="bgcap"></div>
+    <div class="wrap">
+      <div class="hero"><div class="pf"></div><b>카렌</b></div>
+      <div class="slots">
+        <div class="sl lg"><img src="img/assets_ui_gear_ribbon.png" alt="리본"></div>
+        <div class="sl"><img src="img/assets_ui_gear_badge.png" alt="배지"></div>
+        <div class="sl"><img src="img/assets_ui_gear_charm.png" alt="부적"></div>
+        <div class="sl"><img src="img/assets_ui_gear_weapon.png" alt="무기"></div>
+      </div>
+      <div class="bag"><h5>가방 · 리본 <span class="tg">? 도움말 켬</span></h5>
+        <div class="g">
+          <div style="background:radial-gradient(circle,#fff3cf,#ffb020)"><img src="img/assets_ui_gear_ribbon.png" alt="전설 리본"><small>+20</small></div>
+          <div style="background:radial-gradient(circle,#fff3cf,#ffb020)"><img src="img/assets_ui_gear_ribbon.png" alt="전설 리본"><small>+0</small></div>
+          <div style="background:radial-gradient(circle,#f1e8ff,#9a6bff)"><img src="img/assets_ui_gear_ribbon.png" alt="영웅 리본"><small>+7</small></div>
+          <div style="background:radial-gradient(circle,#f1e8ff,#9a6bff)"><img src="img/assets_ui_gear_ribbon.png" alt="영웅 리본"><small>+3</small></div>
+          <div style="background:radial-gradient(circle,#e6f4ff,#3fa9ff)"><img src="img/assets_ui_gear_ribbon.png" alt="희귀 리본"><small>+5</small></div>
+          <div style="background:radial-gradient(circle,#e6f4ff,#3fa9ff)"><img src="img/assets_ui_gear_ribbon.png" alt="희귀 리본"><small>+0</small></div>
+          <div style="background:radial-gradient(circle,#f3f3f6,#9aa8bb)"><img src="img/assets_ui_gear_ribbon.png" alt="일반 리본"><small>+2</small></div>
+          <div style="background:radial-gradient(circle,#f3f3f6,#9aa8bb)"><img src="img/assets_ui_gear_ribbon.png" alt="일반 리본"><small>+0</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="sh">
+      <div class="item"><img src="img/assets_ui_gear_ribbon.png" alt="리본"><b>+20</b></div>
+      <div class="nm"><h4>전설 리본 4단계</h4><p>공격 +56.6%</p></div>
+      <div class="lines">
+        <div class="pl"><span class="sw"></span>보호막 +6.4%<span class="lk on" aria-label="잠금">🔒</span></div>
+        <div class="pl"><span class="sw"></span>공격 +4.1%<span class="lk" aria-label="잠금 안 함">🔓</span></div>
+        <div class="pl"><span class="sw"></span>보스 피해 +6.2%<span class="lk" aria-label="잠금 안 함">🔓</span></div>
+      </div>
+      <div class="acts">
+        <div class="cbtn enh">신화 승격<span class="coach">리본 2개로 신화</span></div>
+        <div class="cbtn plain">장착<span class="coach">카렌에게 끼기</span></div>
+        <div class="cbtn dust">잠재 덧칠<span class="coach">색가루 · 잠금 X</span></div>
+        <div class="cbtn rain">무지개 덧칠<span class="coach">채색석 · 🔒 2줄</span></div>
+      </div>
+    </div>
+  </div></div>
+</section>
+</main>
+<script>
+const fit=()=>document.querySelectorAll('.vp').forEach(v=>{const s=v.querySelector('.scr');const k=v.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;v.style.height=s.offsetHeight*k+'px'});
+let lastW=0;new ResizeObserver(()=>{const w=document.body.clientWidth;if(w!==lastW){lastW=w;requestAnimationFrame(fit)}}).observe(document.body);
+document.querySelectorAll('.bar [data-res]').forEach(b=>b.addEventListener('click',()=>{document.documentElement.style.setProperty('--w',b.dataset.res);document.querySelectorAll('.bar [data-res]').forEach(x=>x.setAttribute('aria-pressed',x===b));fit()}));
+document.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>document.querySelectorAll(`.opt[data-choice-group="${o.dataset.choiceGroup}"]`).forEach(x=>x.classList.toggle('sel',x===o))));
+fit();
+</script>
+</body>
+</html>

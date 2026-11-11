@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레인보우 아틀리에 시안 · 전투 HUD 상단 (#35 #4 #6 #31 #57 #7 #50 #5 #64 #41)</title>
+<style>
+:root{--navy:#2e2350;--lav:#8b74e8;--gold:#d9a52b;--cream:#fff8ec;--line:#e2dbf5;--w:1280}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#f3f0fa;color:var(--navy);font-family:"Pretendard","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.45}
+.page{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+.page>h1{font-size:22px;margin:0 0 4px}
+.lead{margin:0 0 14px;font-size:14px;color:#5a5180}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:13px}
+.bar button{font:inherit;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #c9bff0;background:#fff;color:var(--navy);cursor:pointer}
+.bar button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ref,.opt{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 18px}
+.opt{cursor:pointer}
+.opt[data-choice-selected],.opt.sel{outline:3px solid var(--lav);outline-offset:2px}
+.opt h2,.ref h2{font-size:17px;margin:0 0 2px}
+.cap{margin:0 0 10px;font-size:14px;color:#4c4374}
+.fl{font-size:13px;font-weight:700;color:#6a6290;margin:10px 0 4px}
+.vp{position:relative;width:100%;overflow:hidden;border-radius:8px;background:#1d1838}
+.scr{position:absolute;left:0;top:0;width:calc(var(--w)*1px);height:720px;transform-origin:0 0;overflow:hidden;font-size:16px}
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.refs figure{margin:0}.refs img{width:100%;display:block;border-radius:8px}.refs figcaption{font-size:12px;color:#6a6290;margin-top:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- 전투 장면 (공통, JS로 채움) ---- */
+.world{position:absolute;inset:0}
+.world .sky{position:absolute;inset:0;background:url(img/assets_world_layer_sky.png) center/cover}
+.world .far{position:absolute;left:0;right:0;bottom:-120px;height:600px;background:url(img/assets_world_layer_far_loop.png) center bottom/cover}
+.world .mid{position:absolute;left:180px;right:-200px;top:20px;height:640px;background:url(img/assets_world_layer_mid.png) center/contain no-repeat;opacity:.9}
+.world .whale{position:absolute;width:1428px;left:-853px;top:212px}
+.world .kid{position:absolute;height:112px}
+.world .foe{position:absolute;filter:drop-shadow(0 6px 6px rgba(46,35,80,.3))}
+
+/* ---- 공통 HUD 조각 ---- */
+.pane{background:linear-gradient(180deg,#fff,#f4f0ff);border-radius:12px;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 4px 0 rgba(46,35,80,.18)}
+.player{position:absolute;left:16px;top:12px;width:236px;height:74px;display:flex;align-items:center;gap:10px;padding:0 12px}
+.player .av{width:52px;height:52px;border-radius:50%;background:url(img/assets_brand_title_ciel.png) 50% 6%/175% auto no-repeat #e9e2ff;box-shadow:0 0 0 3px #fff}
+.player b{font-size:17px}.player small{display:block;font-size:13px;color:#6a6290;font-weight:700}
+.quest{position:absolute;left:16px;top:96px;width:330px;height:62px;padding:8px 14px;font-size:15px;font-weight:700}
+.quest small{display:block;color:#8b74e8;font-size:12px}
+.res{position:absolute;right:76px;top:14px;display:flex;gap:8px}
+.res span{min-width:110px;height:44px;padding:0 14px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px}
+.res img{width:26px;height:26px}
+.menu{position:absolute;right:14px;top:14px;width:50px;height:50px;display:grid;place-items:center;font-size:24px;font-weight:900}
+.side{position:absolute;left:18px;top:200px;display:flex;flex-direction:column;gap:12px}
+.side div{width:56px;height:56px;display:grid;place-items:center;font-size:12px;font-weight:800}
+.side img{width:34px;height:34px}
+.nav{position:absolute;left:16px;bottom:10px;width:430px;height:70px;display:flex;justify-content:space-around;align-items:center}
+.nav div{display:flex;flex-direction:column;align-items:center;font-size:13px;font-weight:800}
+.nav img{width:34px;height:34px}
+.ports{position:absolute;right:20px;bottom:30px;display:flex;gap:12px}
+.ports div{width:72px;height:82px;border-radius:10px;background-size:175% auto;background-position:50% 6%;background-repeat:no-repeat;box-shadow:0 0 0 3px #fff;position:relative}
+.ports div::after{content:"Lv.12";position:absolute;left:0;right:0;bottom:0;background:rgba(46,35,80,.8);color:#fff;font-size:12px;font-weight:800;text-align:center}
+.tail{position:absolute;right:384px;bottom:28px;width:140px;height:66px;display:grid;place-items:center;font-weight:900;font-size:18px;color:#fff;background:linear-gradient(90deg,#ffb36b,#ff8a5c);border-radius:14px;box-shadow:0 4px 0 #c95f2f}
+.ret{position:absolute;right:300px;bottom:28px;width:72px;height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.ret b{font-size:24px;line-height:1}
+.newmark{outline:3px dashed #ff4f8b;outline-offset:4px}
+.tag{position:absolute;padding:3px 9px;border-radius:8px;background:#c2185b;color:#fff;font-size:13px;font-weight:800;white-space:nowrap;z-index:9}
+.weak{display:inline-grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 40% 35%,#d9c6ff,#9a6bff);color:#fff;font-weight:900;box-shadow:0 0 0 3px #fff,0 0 14px #9a6bff}
+
+/* 보스 막대 공통: 빨강 = 현재, 노랑 = 방금 깎인 몫(지연) */
+.hp{position:relative;border-radius:8px;background:rgba(46,35,80,.75);overflow:hidden}
+.hp .y{position:absolute;left:0;top:0;bottom:0;width:66%;background:linear-gradient(180deg,#ffe48a,#ffbf2e);animation:lag 2.2s ease-in-out infinite}
+.hp .r{position:absolute;left:0;top:0;bottom:0;width:58%;background:linear-gradient(180deg,#ff8a8a,#e8344c)}
+.hp .tick{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.35)}
+@keyframes lag{0%,30%{width:66%}100%{width:58%}}
+
+/* ---------- A ---------- */
+.A .crest{position:absolute;left:50%;top:12px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:6px 20px 6px 8px;background:linear-gradient(90deg,#3b2c7a,#6a4fd6);border-radius:30px;color:#fff;box-shadow:0 0 0 2px #ffe7a6}
+.A .crest .no{width:52px;height:52px;border-radius:50%;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:16px;line-height:1;text-align:center}
+.A .crest .dots{display:flex;gap:6px;align-items:center}
+.A .crest .dots i{width:12px;height:12px;border-radius:50%;background:rgba(255,255,255,.3)}
+.A .crest .dots i.d{background:#ffe7a6}.A .crest .dots i.c{background:#fff;box-shadow:0 0 8px #fff;width:16px;height:16px}
+.A .crest .dots b{font-size:20px}
+.A .boss{position:absolute;left:50%;top:10px;width:660px;margin-left:-330px;height:84px}
+.A .boss .weak{position:absolute;left:0;top:4px;width:76px;height:76px;font-size:30px;z-index:2}
+.A .boss .weak small{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:12px;background:var(--navy);padding:1px 8px;border-radius:8px;white-space:nowrap}
+.A .boss .nm{position:absolute;left:92px;top:2px;color:#fff;font-weight:900;font-size:20px;text-shadow:0 2px 0 #2e2350}
+.A .boss .nm small{font-size:14px;color:#ffd2dc;margin-right:6px}
+.A .boss .hp{position:absolute;left:66px;right:76px;top:36px;height:26px;border-radius:0 13px 13px 0;box-shadow:0 0 0 2px #fff}
+.A .boss .tm{position:absolute;right:0;top:26px;width:86px;height:46px;border-radius:23px;background:#fff;display:grid;place-items:center;font-weight:900;font-size:20px;box-shadow:0 0 0 3px #ffbf2e}
+.A .boss .st{position:absolute;right:86px;top:4px;color:#fff;font-weight:800;font-size:15px;text-shadow:0 1px 2px #2e2350}
+.A .band{position:absolute;left:-40px;right:-40px;top:250px;height:120px;transform:rotate(-4deg);background:linear-gradient(90deg,transparent,rgba(46,35,80,.85) 15%,rgba(46,35,80,.85) 85%,transparent);display:flex;align-items:center;justify-content:center;gap:24px;color:#fff;overflow:hidden}
+.A .band::before{content:"";position:absolute;left:10%;right:10%;top:10px;height:6px;background:linear-gradient(90deg,#ff8db8,#ffcf6b,#9ff0b8,#8fd2ff,#c5a6ff)}
+.A .band::after{content:"";position:absolute;left:10%;right:10%;bottom:10px;height:6px;background:linear-gradient(90deg,#c5a6ff,#8fd2ff,#9ff0b8,#ffcf6b,#ff8db8)}
+.A .band b{font-size:64px;font-weight:900;font-style:italic;letter-spacing:2px;text-shadow:0 0 18px rgba(255,231,166,.8)}
+.A .band span{font-size:22px;font-weight:700;color:#ffe7a6}
+.A .dome{position:absolute;left:30px;top:178px;width:440px;height:200px}
+.A .dome .num{position:absolute;left:150px;top:-4px;padding:3px 12px;border-radius:12px;background:rgba(46,35,80,.85);color:#a8ffd9;font-weight:900;font-size:16px;white-space:nowrap}
+.A .breath{position:absolute;left:480px;top:470px;width:104px;height:104px;border-radius:50%;background:conic-gradient(#ffd66b 0 72%,rgba(255,255,255,.35) 72%);display:grid;place-items:center}
+.A .breath::before{content:"";position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#cfe9ff 55%,#8b74e8)}
+.A .breath span{position:relative;font-weight:900;font-size:15px;color:var(--navy);text-align:center;line-height:1.2}
+
+/* ---------- B ---------- */
+.B .player{height:96px;flex-wrap:wrap;align-content:center}
+.B .player .stg{width:100%;display:flex;align-items:center;gap:8px;font-size:15px;font-weight:900}
+.B .player .stg .r{flex:1;height:8px;border-radius:4px;background:#ece7ff;overflow:hidden}
+.B .player .stg .r i{display:block;height:100%;width:40%;background:linear-gradient(90deg,#8b74e8,#ff8db8)}
+.B .quest{top:118px}
+.B .side{top:200px}
+.B .boss{position:absolute;right:76px;top:72px;width:620px;height:96px}
+.B .boss .plate{position:absolute;inset:0 0 22px 0;transform:skewX(-14deg);background:linear-gradient(90deg,rgba(46,35,80,.92),rgba(80,50,140,.92));border-radius:6px;box-shadow:0 0 0 2px #ffbf2e}
+.B .boss .nm{position:absolute;left:28px;top:6px;color:#fff;font-weight:900;font-size:19px}
+.B .boss .tm{position:absolute;right:22px;top:4px;color:#ffe48a;font-weight:900;font-size:22px}
+.B .boss .hp{position:absolute;left:24px;right:20px;top:38px;height:22px;transform:skewX(-14deg)}
+.B .boss .wk{position:absolute;left:40px;bottom:-14px;display:flex;align-items:center;gap:6px;padding:4px 14px 4px 4px;border-radius:20px;background:#fff;font-weight:900;font-size:15px;box-shadow:0 2px 0 rgba(46,35,80,.2)}
+.B .boss .wk .weak{width:30px;height:30px;font-size:15px;box-shadow:none}
+.B .card{position:absolute;left:50%;top:210px;margin-left:-150px;width:300px;height:200px;border-radius:24px;background:linear-gradient(160deg,#fff,#efe8ff);box-shadow:0 0 0 4px #ffe7a6,0 20px 40px rgba(46,35,80,.4);text-align:center;transform:perspective(600px) rotateY(-14deg)}
+.B .card small{display:block;margin-top:22px;font-size:16px;font-weight:800;color:#8b74e8;letter-spacing:4px}
+.B .card b{display:block;font-size:92px;font-weight:900;line-height:1;background:linear-gradient(180deg,#6a4fd6,#ff6fa8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.B .card span{font-size:16px;font-weight:700;color:#6a6290}
+.B .shield{position:absolute;left:30px;top:478px;width:400px;height:30px;display:flex;align-items:center;gap:8px}
+.B .shield .ic{width:36px;height:36px;border-radius:50%;background:#14714f;color:#fff;display:grid;place-items:center;font-weight:900;box-shadow:0 0 0 3px #fff;flex:none}
+.B .shield .r{flex:1;height:16px;border-radius:8px;background:rgba(46,35,80,.6);overflow:hidden;box-shadow:0 0 0 2px #fff}
+.B .shield .r i{display:block;height:100%;width:78%;background:linear-gradient(90deg,#7ff0c4,#2fbf8a)}
+.B .shield b{position:absolute;left:52px;top:-22px;color:#fff;font-size:15px;text-shadow:0 1px 3px #2e2350}
+.B .breath{position:absolute;left:468px;bottom:14px;width:190px;height:86px;border-radius:18px;transform:skewX(-10deg);background:linear-gradient(90deg,#6cb8ff,#a98bff);box-shadow:0 4px 0 #4f3bb0,0 0 0 3px #fff;display:flex;align-items:center;gap:10px;padding:0 16px;color:#fff}
+.B .breath>*{transform:skewX(10deg)}
+.B .breath .rg{width:54px;height:54px;border-radius:50%;background:conic-gradient(#ffd66b 0 72%,rgba(255,255,255,.3) 72%);display:grid;place-items:center;flex:none}
+.B .breath .rg::before{content:"🐋";font-size:24px}
+.B .breath b{font-size:19px}.B .breath small{display:block;font-size:13px}
+
+/* ---------- C ---------- */
+.C .topbar{position:absolute;left:0;right:0;top:0;height:8px;background:rgba(46,35,80,.6)}
+.C .stg{position:absolute;left:270px;top:20px;display:flex;align-items:center;gap:8px;color:#fff;font-weight:900;font-size:18px;text-shadow:0 1px 3px #2e2350}
+.C .stg i{display:inline-block;width:120px;height:6px;border-radius:3px;background:rgba(255,255,255,.35);overflow:hidden}
+.C .stg i::before{content:"";display:block;height:100%;width:40%;background:#ffe7a6}
+.C .boss{position:absolute;left:0;right:0;top:0;height:70px;background:linear-gradient(180deg,rgba(46,35,80,.85),rgba(46,35,80,0))}
+.C .boss .hp{position:absolute;left:330px;right:330px;top:30px;height:18px;border-radius:9px;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
+.C .boss .nm{position:absolute;left:330px;top:4px;color:#fff;font-weight:900;font-size:17px}
+.C .boss .weak{position:absolute;left:280px;top:20px;width:42px;height:42px;font-size:18px}
+.C .boss .tm{position:absolute;right:330px;top:2px;color:#ffe48a;font-weight:900;font-size:19px}
+.C .tick{position:absolute;left:50%;top:84px;transform:translateX(-50%);display:flex;align-items:center;gap:16px;padding:8px 30px;border-radius:30px;background:rgba(255,255,255,.92);box-shadow:0 0 0 2px #ffe7a6,0 6px 16px rgba(46,35,80,.3);white-space:nowrap}
+.C .tick b{font-size:26px;font-weight:900;color:#6a4fd6}
+.C .tick span{font-size:17px;font-weight:700}
+.C .tick em{font-style:normal;font-size:14px;color:#14714f;font-weight:800}
+.C .cluster{position:absolute;left:470px;bottom:12px;display:flex;align-items:flex-end;gap:12px}
+.C .wh{width:96px;height:96px;border-radius:50%;background:conic-gradient(#2fbf8a 0 78%,rgba(46,35,80,.45) 78%);display:grid;place-items:center;position:relative}
+.C .wh::before{content:"";position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#d8f7ea)}
+.C .wh span{position:relative;text-align:center;font-weight:900;font-size:16px;line-height:1.1;color:#16714f}
+.C .wh span small{display:block;font-size:12px;color:#4c4374}
+.C .br{width:112px;height:112px;border-radius:50%;background:conic-gradient(#ffd66b 0 100%);display:grid;place-items:center;position:relative;box-shadow:0 0 24px rgba(255,214,107,.9);animation:rdy 1.4s ease-in-out infinite}
+@keyframes rdy{50%{box-shadow:0 0 6px rgba(255,214,107,.4)}}
+.C .br::before{content:"";position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fff,#bfe2ff 55%,#6a4fd6)}
+.C .br span{position:relative;text-align:center;font-weight:900;color:#fff;text-shadow:0 1px 3px #2e2350;font-size:17px;line-height:1.2}
+</style>
+</head>
+<body>
+<main class="page">
+<h1>전투 화면 위쪽 · 보스 · 전환 띠 · 버튼 자리</h1>
+<p class="lead">각 시안마다 <b>일반 스테이지(전환 띠가 지나가는 순간)</b>와 <b>보스 스테이지</b> 두 장입니다. 공통: 배속 버튼 삭제(#7), 복귀 버튼은 배속 자리로(#50), 의뢰 버튼 삭제(#49), 재화 + 버튼 삭제(#21), 보스 막대에 약점 속성(#31), 맞을 때마다 노란 몫이 늦게 줄어듦(#57, 움직임으로 표시). <span style="color:#c2185b;font-weight:800">분홍 점선</span> = 자리가 바뀐 것. 세 시안은 <b>시선을 어디에 모으는지</b>가 다릅니다.</p>
+<div class="bar"><button type="button" data-res="1280" aria-pressed="true">1280×720</button><button type="button" data-res="1600" aria-pressed="false">1600×720</button></div>
+
+<section class="ref">
+  <h2>지금 게임</h2>
+  <p class="cap">「1장 · 40/100 · 보스 40」과 「STAGE 40」, 보스 칸의 「BOSS」가 겹쳐 같은 정보를 세 번 말하고, 고래 숨결 카드가 전투 한가운데를 가립니다. 보호막 숫자는 「무적 999999.0초」처럼 작게 묻혀 있습니다.</p>
+  <div class="refs">
+    <figure><img src="img/artifacts_polish_after_stage_boss_1280x720.png" alt="지금 보스 스테이지"><figcaption>artifacts/polish/after/stage_boss_1280x720.png</figcaption></figure>
+    <figure><img src="img/artifacts_whale_breath_1280_boss_sweep.png" alt="지금 고래 숨결 사용 중"><figcaption>artifacts/whale_breath/1280_boss_sweep.png</figcaption></figure>
+  </div>
+</section>
+
+<!-- A -->
+<section class="opt" data-choice="hud_a" data-choice-group="hud" data-choice-label="A · 가운데 문장 + 고래 곁 숨결">
+  <h2>A · 가운데 문장(紋章) — 위 가운데 하나로 모으기</h2>
+  <p class="cap">스테이지는 위 가운데 「번호 + 보스까지 점 10개」 하나뿐이고 보스 때 그 자리가 약점 원이 붙은 체력 막대로 바뀌며, 보호막은 갑판 위 돔 선, 숨결은 고래 머리 앞 둥근 버튼입니다.</p>
+  <p class="fl">일반 스테이지 · 전환 띠</p>
+  <div class="vp"><div class="scr A">
+    <div class="world" data-foes="n"></div><div class="hud"></div>
+    <div class="crest"><div class="no">1장<br>40</div><div class="dots"><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i><b>👑</b></div></div>
+    <div class="band"><b>STAGE 41</b><span>정화 완료 · 바람 조각 +320</span></div>
+    <svg class="dome" viewBox="0 0 440 200" aria-hidden="true"><path d="M20,190 Q220,-40 420,190" fill="none" stroke="rgba(127,240,196,.35)" stroke-width="14" stroke-linecap="round"/><path d="M20,190 Q220,-40 360,120" fill="none" stroke="#2fdca0" stroke-width="8" stroke-linecap="round"/></svg>
+    <div class="dome" style="pointer-events:none"><span class="num">🛡 12,400</span></div>
+    <div class="breath newmark"><span>숨결<br>72%</span></div><span class="tag" style="left:470px;top:440px">숨결 → 고래 머리 앞</span>
+    <span class="tag" style="left:40px;top:180px">보호막 = 갑판 위 돔 선</span>
+  </div></div>
+  <p class="fl">보스 스테이지</p>
+  <div class="vp"><div class="scr A">
+    <div class="world" data-foes="b"></div><div class="hud"></div>
+    <div class="boss"><div class="weak">★<small>약점 별</small></div><div class="nm"><small>1장 · 40</small>잿빛 파수꾼</div><div class="st">58%</div><div class="hp"><div class="y"></div><div class="r"></div><i class="tick" style="left:25%"></i><i class="tick" style="left:50%"></i><i class="tick" style="left:75%"></i></div><div class="tm">0:45</div></div>
+    <svg class="dome" viewBox="0 0 440 200" aria-hidden="true"><path d="M20,190 Q220,-40 420,190" fill="none" stroke="rgba(127,240,196,.35)" stroke-width="14" stroke-linecap="round"/><path d="M20,190 Q220,-40 290,70" fill="none" stroke="#2fdca0" stroke-width="8" stroke-linecap="round"/></svg>
+    <div class="dome" style="pointer-events:none"><span class="num">🛡 7,950</span></div>
+    <div class="breath"><span>숨결<br>준비</span></div>
+  </div></div>
+</section>
+
+<!-- B -->
+<section class="opt" data-choice="hud_b" data-choice-group="hud" data-choice-label="B · 왼쪽 위 통합 + 오른쪽 보스 판">
+  <h2>B · 왼쪽 위 통합 — 정보는 왼쪽, 적은 오른쪽</h2>
+  <p class="cap">스테이지를 항해사 칸 안의 진행 막대로 합치고, 보스 막대는 적이 있는 오른쪽 위에 기울어진 판으로; 보호막은 고래 아래 굵은 막대, 숨결은 메뉴 옆 엄지 자리입니다.</p>
+  <p class="fl">일반 스테이지 · 전환 띠</p>
+  <div class="vp"><div class="scr B">
+    <div class="world" data-foes="n"></div><div class="hud"></div>
+    <div class="card"><small>NEXT STAGE</small><b>41</b><span>1장 · 바람 언덕</span></div>
+    <div class="shield newmark"><span class="ic">🛡</span><div class="r"><i></i></div><b>12,400 / 15,900</b></div><span class="tag" style="left:30px;top:520px">보호막 = 고래 아래 막대</span>
+    <div class="breath newmark"><span class="rg"></span><div><b>고래 숨결</b><small>72%</small></div></div><span class="tag" style="left:470px;top:582px">숨결 → 엄지 자리</span>
+  </div></div>
+  <p class="fl">보스 스테이지</p>
+  <div class="vp"><div class="scr B">
+    <div class="world" data-foes="b"></div><div class="hud"></div>
+    <div class="boss"><div class="plate"></div><div class="nm">잿빛 파수꾼</div><div class="tm">⏱ 0:45</div><div class="hp"><div class="y"></div><div class="r"></div><i class="tick" style="left:25%"></i><i class="tick" style="left:50%"></i><i class="tick" style="left:75%"></i></div><div class="wk"><span class="weak">★</span>약점 별</div></div>
+    <div class="shield"><span class="ic">🛡</span><div class="r"><i style="width:50%"></i></div><b>7,950 / 15,900</b></div>
+    <div class="breath"><span class="rg"></span><div><b>고래 숨결</b><small>준비 완료</small></div></div>
+  </div></div>
+</section>
+
+<!-- C -->
+<section class="opt" data-choice="hud_c" data-choice-group="hud" data-choice-label="C · 맨 위 얇은 막대 + 아래 고래 묶음">
+  <h2>C · 위는 얇게, 아래에 고래 묶음 — 전투 화면을 가장 넓게</h2>
+  <p class="cap">위쪽은 액션 게임처럼 화면 끝 얇은 보스 막대 하나, 전환은 작은 알약 띠; 고래 보호막 원과 숨결 버튼을 메뉴 옆에 나란히 묶었습니다.</p>
+  <p class="fl">일반 스테이지 · 전환 띠</p>
+  <div class="vp"><div class="scr C">
+    <div class="world" data-foes="n"></div><div class="hud"></div>
+    <div class="stg">1-40 <i></i> 👑</div>
+    <div class="tick"><b>41</b><span>바람 언덕</span><em>+320 바람 조각</em></div>
+    <div class="cluster newmark"><div class="wh"><span>12.4K<small>보호막</small></span></div><div class="br" style="background:conic-gradient(#ffd66b 0 72%,rgba(46,35,80,.45) 72%);animation:none;box-shadow:none"><span>숨결<br>72%</span></div></div><span class="tag" style="left:470px;top:570px">보호막 + 숨결 묶음</span>
+  </div></div>
+  <p class="fl">보스 스테이지</p>
+  <div class="vp"><div class="scr C">
+    <div class="world" data-foes="b"></div><div class="hud"></div>
+    <div class="boss"><span class="weak">★</span><div class="nm">잿빛 파수꾼 · 약점 별</div><div class="tm">0:45</div><div class="hp"><div class="y"></div><div class="r"></div><i class="tick" style="left:25%"></i><i class="tick" style="left:50%"></i><i class="tick" style="left:75%"></i></div></div>
+    <div class="cluster"><div class="wh" style="background:conic-gradient(#2fbf8a 0 50%,rgba(46,35,80,.45) 50%)"><span>7.9K<small>보호막</small></span></div><div class="br"><span>숨결<br>GO</span></div></div>
+  </div></div>
+</section>
+</main>
+
+<template id="tpl-world">
+  <div class="sky"></div><div class="mid"></div><div class="far"></div>
+  <img class="whale" src="img/assets_world_whale_giant.png" alt="">
+  <img class="kid" src="img/assets_chars_ciel_idle.png" alt="시엘" style="left:150px;top:255px">
+  <img class="kid" src="img/assets_chars_yuna_idle.png" alt="유나" style="left:262px;top:258px">
+  <img class="kid" src="img/assets_chars_karen_idle.png" alt="카렌" style="left:70px;top:318px">
+  <img class="kid" src="img/assets_chars_mio_idle.png" alt="미오" style="left:200px;top:330px">
+</template>
+<template id="tpl-n">
+  <img class="foe" src="img/assets_enemies_crane_sd.png" alt="잿빛 종이학" style="right:360px;top:250px;height:90px">
+  <img class="foe" src="img/assets_enemies_windbell_sd.png" alt="울지 않는 풍경" style="right:220px;top:360px;height:100px">
+  <img class="foe" src="img/assets_enemies_armor_sd.png" alt="텅 빈 기사" style="right:110px;top:240px;height:110px">
+  <img class="foe" src="img/assets_enemies_kite_sd.png" alt="끊어진 연" style="right:470px;top:380px;height:84px">
+</template>
+<template id="tpl-b">
+  <img class="foe" src="img/assets_enemies_golem_sd.png" alt="잿빛 파수꾼" style="right:110px;top:150px;height:380px">
+</template>
+<template id="tpl-hud">
+  <div class="pane player"><div class="av"></div><div><b>항해사 Lv.15</b><small>전투력 3,821</small></div></div>
+  <div class="pane quest"><small>퀘스트</small>스테이지 3까지 정화 · 0/3</div>
+  <div class="res"><span class="pane"><img src="img/assets_ui_icon_gold.png" alt="바람 조각">12.4K</span><span class="pane"><img src="img/assets_ui_icon_pearl.png" alt="구름 진주">100</span><span class="pane"><img src="img/assets_ui_icon_gem.png" alt="채색석">3,200</span></div>
+  <div class="pane menu" aria-label="메뉴">≡</div>
+  <div class="side"><div class="pane"><img src="img/assets_ui_kit_side_palette.png" alt="색 지도"></div><div class="pane"><img src="img/assets_ui_kit_side_story.png" alt="이야기"></div></div>
+  <div class="pane nav"><div><img src="img/assets_ui_kit_nav_heroes.png" alt="">아이들</div><div><img src="img/assets_ui_kit_nav_formation.png" alt="">편성</div><div><img src="img/assets_ui_kit_nav_summon.png" alt="">소환</div><div><img src="img/assets_ui_kit_nav_adventure.png" alt="">모험</div><div><img src="img/assets_ui_kit_nav_school.png" alt="">분교</div><div><img src="img/assets_ui_kit_nav_shop.png" alt="">상점</div></div>
+  <div class="tail">순풍 가속!</div>
+  <div class="pane ret newmark"><b>↺</b>복귀</div>
+  <div class="ports"><div style="background-image:url(img/assets_brand_title_ciel.png)"></div><div style="background-image:url(img/assets_brand_title_yuna.png)"></div><div style="background-image:url(img/assets_brand_title_mio.png)"></div><div style="background-image:url(img/assets_brand_title_karen.png)"></div></div>
+</template>
+<script>
+const T=id=>document.getElementById(id).innerHTML;
+document.querySelectorAll('.world').forEach(w=>{w.innerHTML=T('tpl-world')+T(w.dataset.foes==='b'?'tpl-b':'tpl-n')});
+document.querySelectorAll('.hud').forEach(h=>{h.outerHTML=T('tpl-hud')});
+const fit=()=>document.querySelectorAll('.vp').forEach(v=>{const s=v.querySelector('.scr');const k=v.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;v.style.height=s.offsetHeight*k+'px'});
+let lastW=0;new ResizeObserver(()=>{const w=document.body.clientWidth;if(w!==lastW){lastW=w;requestAnimationFrame(fit)}}).observe(document.body);
+document.querySelectorAll('.bar [data-res]').forEach(b=>b.addEventListener('click',()=>{document.documentElement.style.setProperty('--w',b.dataset.res);document.querySelectorAll('.bar [data-res]').forEach(x=>x.setAttribute('aria-pressed',x===b));fit()}));
+document.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>document.querySelectorAll(`.opt[data-choice-group="${o.dataset.choiceGroup}"]`).forEach(x=>x.classList.toggle('sel',x===o))));
+fit();
+</script>
+</body>
+</html>

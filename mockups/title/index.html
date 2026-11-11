@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레인보우 아틀리에 시안 · 타이틀 · 로딩 (#1)</title>
+<style>
+@property --p{syntax:"<percentage>";inherits:true;initial-value:72%}
+:root{--navy:#2e2350;--lav:#8b74e8;--gold:#d9a52b;--cream:#fff8ec;--line:#e2dbf5;--w:1280}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#f3f0fa;color:var(--navy);font-family:"Pretendard","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.45}
+.page{max-width:1180px;margin:0 auto;padding:20px 16px 64px}
+.page>h1{font-size:22px;margin:0 0 4px}
+.page>h3{font-size:18px;margin:28px 0 4px}
+.lead{margin:0 0 14px;font-size:14px;color:#5a5180}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px;font-size:13px}
+.bar button{font:inherit;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid #c9bff0;background:#fff;color:var(--navy);cursor:pointer}
+.bar button[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ref,.opt{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:0 0 18px}
+.opt{cursor:pointer}
+.opt[data-choice-selected],.opt.sel{outline:3px solid var(--lav);outline-offset:2px}
+.opt h2,.ref h2{font-size:17px;margin:0 0 2px}
+.cap{margin:0 0 10px;font-size:14px;color:#4c4374}
+.vp{position:relative;width:100%;overflow:hidden;border-radius:8px;background:#1d1838;contain:paint}
+.scr{position:absolute;left:0;top:0;width:calc(var(--w)*1px);height:720px;transform-origin:0 0;overflow:hidden}
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.refs figure{margin:0}.refs img{width:100%;display:block;border-radius:8px}.refs figcaption{font-size:12px;color:#6a6290;margin-top:4px;overflow-wrap:anywhere}
+
+/* ---- 공통 장면: 톤을 낮춘 하늘 + 결 + 자연스러운 고래 ---- */
+.scene{position:absolute;inset:0}
+.sky{position:absolute;inset:0;background:url(img/assets_world_layer_sky.png) center/cover;filter:saturate(.8) brightness(.97)}
+.tone{position:absolute;inset:0;background:linear-gradient(180deg,rgba(62,48,130,.42) 0%,rgba(150,120,200,.12) 38%,rgba(255,206,160,.22) 66%,rgba(52,38,100,.5) 100%)}
+.far{position:absolute;left:0;right:0;bottom:-70px;height:500px;background:url(img/assets_world_layer_far_loop.png) center bottom/cover;opacity:.75;filter:saturate(.75) brightness(1.04)}
+.haze{position:absolute;left:-10%;right:-10%;bottom:40px;height:260px;background:radial-gradient(ellipse at 50% 60%,rgba(255,244,230,.55),transparent 65%);filter:blur(4px)}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.22;mix-blend-mode:soft-light;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .5 0 0 0 0 .45 0 0 0 .9 0'/></filter><rect width='220' height='220' filter='url(%23g)'/></svg>")}
+.vign{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 45%,transparent 55%,rgba(30,20,70,.45))}
+.whale{position:absolute;width:1150px;animation:glide 8s ease-in-out infinite;transform-origin:55% 60%}
+.whale img.w{width:100%;display:block;filter:drop-shadow(0 30px 24px rgba(40,30,90,.28))}
+.whale .kid{position:absolute}
+@keyframes glide{0%,100%{transform:translateY(0) rotate(-.6deg)}50%{transform:translateY(-12px) rotate(.8deg)}}
+.wisp{position:absolute;height:70px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,255,255,.8),rgba(255,255,255,0) 70%);filter:blur(5px);animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-360px)}}
+.fx{position:absolute;inset:0;pointer-events:none}
+.spk{position:absolute;width:12px;height:12px;transform:scale(var(--z));animation:twk 6s linear infinite}
+.spk::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,#fff 0 18%,rgba(255,240,200,.9) 30%,transparent 62%);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}
+@keyframes twk{0%{opacity:0;translate:0 20px}20%{opacity:1}80%{opacity:.8}100%{opacity:0;translate:-30px -90px}}
+.flk{position:absolute;width:9px;height:7px;border-radius:55% 45% 60% 40%;opacity:0;background:var(--c);box-shadow:0 0 6px var(--c);animation:flk 9s ease-in-out infinite}
+@keyframes flk{0%{opacity:0;transform:translate(0,30px) rotate(0) scale(var(--z))}15%{opacity:.9}85%{opacity:.7}100%{opacity:0;transform:translate(60px,-140px) rotate(240deg) scale(var(--z))}}
+.ray{position:absolute;left:-30%;top:-40%;width:50%;height:180%;background:linear-gradient(90deg,transparent,rgba(255,250,235,.2),transparent);transform:rotate(22deg);animation:ray 8s ease-in-out infinite}
+@keyframes ray{0%{left:-40%}60%,100%{left:120%}}
+@keyframes breathe{50%{opacity:.5;transform:scale(.97)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ver{position:absolute;right:16px;bottom:10px;font-size:12px;color:rgba(255,255,255,.85);text-shadow:0 1px 2px #2e2350}
+.st-load .go{display:none}.st-go .ld{display:none}
+
+/* ---- 로고 공통 ---- */
+.subt{font-weight:700;white-space:nowrap}
+
+/* A · 붓 자국 로고 */
+.a .lg{position:absolute;left:50%;top:6px;width:900px;height:230px;margin-left:-450px;transform:scale(.9);transform-origin:50% 0}
+.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 74%,rgba(40,28,90,.6))}
+.a .lg svg.sw{position:absolute;left:0;top:30px;width:900px;height:170px;overflow:visible}
+.a .lg .shim{stroke-dasharray:120 1400;animation:shim 4.5s ease-in-out infinite}
+@keyframes shim{from{stroke-dashoffset:200}to{stroke-dashoffset:-1300}}
+.a .lg .w1{position:absolute;left:150px;top:24px;font-size:46px;font-weight:800;letter-spacing:2px;color:#fff8ec;transform:rotate(-7deg);-webkit-text-stroke:1.5px #3b2c7a;paint-order:stroke fill;text-shadow:0 3px 0 #3b2c7a}
+.a .lg .w2{position:absolute;left:0;right:0;top:66px;text-align:center;font-size:118px;font-weight:900;letter-spacing:-3px;line-height:1;color:#fff;background:linear-gradient(180deg,#fff 0 55%,#fff1c9 75%,#ffd27a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 5px 0 #3b2c7a) drop-shadow(0 0 18px rgba(255,255,255,.5))}
+.a .lg .brush{position:absolute;right:28px;top:20px;width:190px;height:36px;transform:rotate(-28deg);color:#a68cff;filter:drop-shadow(0 3px 0 rgba(59,44,122,.6))}
+.a .lg .subt{position:absolute;left:0;right:0;top:206px;text-align:center;font-size:22px;letter-spacing:4px;color:#fff;text-shadow:0 1px 4px rgba(46,35,80,.8)}
+.a .lg .subt::before,.a .lg .subt::after{content:"";display:inline-block;width:70px;height:2px;margin:0 16px;vertical-align:middle;background:linear-gradient(90deg,transparent,#ffe7a6)}
+.a .lg .subt::after{transform:scaleX(-1)}
+.a .ldA{position:absolute;left:50%;bottom:44px;width:620px;margin-left:-310px;color:#fff;text-align:center}
+.a .ldA svg{width:620px;height:44px;display:block;overflow:visible}
+.a .ldA .meta{display:flex;justify-content:space-between;margin-top:4px;font-size:16px;font-weight:600;text-shadow:0 1px 3px #2e2350}
+.a .ldA .tip{margin-top:6px;font-size:14px;opacity:.85}
+.a .goA{position:absolute;left:0;right:0;bottom:46px;text-align:center;color:#fff}
+.a .goA .t{position:relative;display:inline-block;font-size:30px;font-weight:800;letter-spacing:4px;text-shadow:0 0 14px rgba(255,255,255,.75),0 2px 0 #3b2c7a}
+.a .goA svg{display:block;margin:2px auto 0;width:460px;height:26px;overflow:visible}
+.a .goA .draw{stroke-dasharray:520;animation:draw 2.6s ease-in-out infinite}
+@keyframes draw{0%{stroke-dashoffset:520;opacity:1}55%{stroke-dashoffset:0;opacity:1}85%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.a .goA .drop{position:absolute;top:50%;width:34px;height:34px;margin-top:-17px;border-radius:50%;border:3px solid var(--c);animation:ripple 2.6s ease-out infinite;opacity:0}
+@keyframes ripple{0%{transform:scale(.2);opacity:1}100%{transform:scale(2.2);opacity:0}}
+
+/* B · 팔레트 엠블럼 */
+.b .lg{position:absolute;left:40px;top:34px;width:560px}
+.b .lg .pal{position:absolute;left:0;top:0;width:210px;height:158px;filter:drop-shadow(0 8px 14px rgba(40,30,90,.35));animation:tilt 6s ease-in-out infinite}
+@keyframes tilt{50%{transform:rotate(-3deg)}}
+.b .well{fill:#ebe4d2;stroke:#cdbf9c;stroke-width:2;transition:fill .4s}
+.b .well.on,.st-go .b .well{fill:var(--c);stroke:rgba(59,44,122,.35)}
+.b .well.on{animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{opacity:.75}}
+.b .lg .wm{position:absolute;left:222px;top:18px}
+.b .lg .w1{display:block;font-size:40px;font-weight:800;letter-spacing:3px;color:#fff;text-shadow:0 3px 0 #3b2c7a}
+.b .lg .w2{display:block;margin-top:-6px;font-size:84px;font-weight:900;letter-spacing:-2px;line-height:1;color:#fff8ec;text-shadow:0 5px 0 #3b2c7a,0 0 20px rgba(255,214,140,.6)}
+.b .lg .stroke{display:block;width:330px;height:16px;margin-top:6px}
+.b .lg .subt{display:inline-block;margin-top:8px;padding:5px 16px 5px 14px;font-size:19px;color:#3b2c7a;background:#fff8ec;border-left:5px solid #d9a52b;border-radius:2px 14px 14px 2px;box-shadow:0 3px 0 rgba(59,44,122,.35)}
+.b .ldB{position:absolute;left:44px;top:236px;width:420px;color:#fff;text-shadow:0 1px 3px #2e2350;font-size:16px;font-weight:600}
+.b .ldB .rail{margin-top:8px;height:6px;border-radius:3px;background:rgba(46,35,80,.5);overflow:hidden}
+.b .ldB .rail i{display:block;height:100%;width:72%;background:linear-gradient(90deg,#ff8aa8,#ffb36b,#ffe07a,#8fe0a6,#7cc8ff);border-radius:3px}
+.b .ldB .tip{margin-top:8px;font-size:14px;font-weight:500;opacity:.9}
+.b .goB{position:absolute;left:60px;bottom:52px;width:250px;height:150px}
+.b .goB svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;animation:wob 3s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.05) rotate(-2deg)}}
+.b .goB .t{position:absolute;left:0;right:0;top:50px;text-align:center;font-size:27px;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 2px 0 #3b2c7a}
+.b .goB .t small{display:block;font-size:13px;letter-spacing:5px;font-weight:700;opacity:.9}
+.b .goB .ring{position:absolute;left:50%;top:50%;width:170px;height:110px;margin:-55px 0 0 -85px;border-radius:50%;border:3px solid rgba(255,231,166,.9);animation:ripple 2.4s ease-out infinite}
+
+/* C · 잿빛 하늘을 물들이기 */
+.c{--p:72%;transition:--p 1.6s ease-in-out}
+.st-go .c{--p:115%}
+.c .grey{filter:grayscale(1) contrast(.82) brightness(1.06);-webkit-mask:linear-gradient(90deg,transparent calc(var(--p) - 4%),#000 calc(var(--p) + 4%));mask:linear-gradient(90deg,transparent calc(var(--p) - 4%),#000 calc(var(--p) + 4%))}
+.c .wet{position:absolute;top:-20px;bottom:-20px;left:var(--p);width:120px;margin-left:-60px;background:linear-gradient(90deg,transparent,rgba(255,170,210,.32) 35%,rgba(255,255,255,.55) 50%,rgba(150,210,255,.32) 65%,transparent);filter:url(#paint) blur(2px);animation:breathe 3s ease-in-out infinite}
+.c .lg{position:absolute;left:0;right:0;top:20px;height:180px;text-align:center}
+.c .lg .tx{position:absolute;left:0;right:0;top:0;font-size:92px;font-weight:900;letter-spacing:-2px;line-height:1.1}
+.c .lg .g{color:#d9d6e2;text-shadow:0 4px 0 #6d6a7d}
+.c .lg .col{color:transparent;background:linear-gradient(90deg,#ff9ab5 0%,#ffb877 20%,#ffe28a 36%,#9fe3ad 52%,#86cdff 68%,#ae95ff 84%,#f0a6ff 100%);-webkit-background-clip:text;background-clip:text;clip-path:inset(-20px calc(100% - var(--p)) -20px -20px);filter:drop-shadow(0 4px 0 #3b2c7a) url(#paint2)}
+.c .lg .subt{position:absolute;left:0;right:0;top:112px;font-size:24px;letter-spacing:3px;font-style:italic;color:#fff;text-shadow:0 1px 4px rgba(46,35,80,.85)}
+.c .chip{position:absolute;left:var(--p);bottom:92px;transform:translateX(-50%);padding:6px 14px;border-radius:16px;background:rgba(46,35,80,.6);color:#fff;font-size:15px;font-weight:700;white-space:nowrap;box-shadow:0 0 0 1px rgba(255,231,166,.7)}
+.c .ldC{position:absolute;left:0;right:0;bottom:40px;text-align:center;color:#fff;font-size:16px;text-shadow:0 1px 3px #2e2350}
+.c .goC{position:absolute;left:0;right:0;bottom:56px;text-align:center;color:#fff}
+.c .goC .t{position:relative;display:inline-block;padding:0 40px;font-size:28px;font-weight:800;letter-spacing:3px;text-shadow:0 2px 0 #3b2c7a,0 0 16px rgba(255,255,255,.6);animation:breathe 2.8s ease-in-out infinite}
+.c .bloom{position:absolute;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;background:radial-gradient(circle,var(--c) 0,transparent 66%);opacity:0;animation:bloom 3.6s ease-out infinite;filter:url(#paint)}
+@keyframes bloom{0%{transform:scale(.2);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+
+/* 부제 카드 */
+.subs{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.subs .opt{margin:0;padding:10px}
+.subs .mini{border-radius:8px;padding:18px 10px 14px;text-align:center;color:#fff;background:linear-gradient(160deg,#3f3278,#6a55b8 60%,#b7849c)}
+.subs .mini b{display:block;font-size:30px;font-weight:900;letter-spacing:-1px;text-shadow:0 3px 0 #2a1f55}
+.subs .mini span{display:block;margin-top:6px;font-size:16px;font-weight:700;letter-spacing:2px}
+.subs .note{margin:8px 2px 0;font-size:13px;color:#4c4374}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="st-go">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="rb" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#ff8aa8"/><stop offset=".18" stop-color="#ffb36b"/><stop offset=".34" stop-color="#ffe07a"/><stop offset=".5" stop-color="#8fe0a6"/><stop offset=".66" stop-color="#7cc8ff"/><stop offset=".82" stop-color="#a68cff"/><stop offset="1" stop-color="#e49cff"/>
+    </linearGradient>
+    <linearGradient id="blob" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#a68cff"/><stop offset=".55" stop-color="#e58bc4"/><stop offset="1" stop-color="#ffb36b"/></linearGradient>
+    <filter id="paint" filterUnits="userSpaceOnUse" x="-100" y="-100" width="1500" height="500"><feTurbulence type="fractalNoise" baseFrequency=".03 .14" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="paint2" filterUnits="userSpaceOnUse" x="-100" y="-100" width="2000" height="400"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="9" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <symbol id="brush" viewBox="0 0 170 30"><rect x="0" y="11" width="98" height="8" rx="4" fill="#3b2c7a"/><rect x="2" y="12.5" width="40" height="2" rx="1" fill="#8b74e8"/><rect x="96" y="7" width="22" height="16" rx="3" fill="#e3b54a"/><rect x="100" y="7" width="3" height="16" fill="#fff3c9"/><path d="M118 7 C138 4 156 9 170 15 C156 21 138 26 118 23 Z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+<main class="page">
+<h1>타이틀 · 로딩 · 터치해서 시작 (#1) — 「레인보우 아틀리에」</h1>
+<p class="lead">새 이름 「레인보우 아틀리에」(아틀리에 = 화실)에 맞춰 <b>잿빛 하늘에 색을 다시 칠한다</b>는 정체성을 로고로 만들었습니다. 무지개는 세로 기둥 대신 가로 붓 자국 · 팔레트 물감 · 번지는 수채로 넣었습니다. 캐릭터 그림은 그대로 두고, 하늘은 톤을 낮추고 결(종이 질감)과 비네트를 더했습니다. 고래는 그린 <code>whale_v4</code>가 천천히 기울며 떠가고, 앞으로 구름이 지나갑니다. 세 시안은 <b>무엇을 주인공으로 두는지</b>가 다릅니다. 맨 아래에서 부제를 따로 고르면 세 시안의 부제가 함께 바뀝니다. 로딩 숫자 · 팁 문구는 예시입니다.</p>
+<div class="bar">
+  <button type="button" data-st="st-load" aria-pressed="false">로딩 중</button>
+  <button type="button" data-st="st-go" aria-pressed="true">시작 대기</button>
+  <span style="width:12px"></span>
+  <button type="button" data-res="1280" aria-pressed="true">1280×720</button>
+  <button type="button" data-res="1600" aria-pressed="false">1600×720</button>
+</div>
+
+<section class="ref">
+  <h2>지금 게임</h2>
+  <p class="cap">만화풍 고래와 소풍 같은 배경이 캐릭터보다 더 귀여워 보이고, 「터치해서 시작」이 게임 안 공통 버튼 그대로입니다.</p>
+  <div class="refs"><figure><img src="img/artifacts_touch_fx_v3_title_1280x720.png" alt="지금 타이틀 화면 1280×720"><figcaption>artifacts/touch_fx/v3/title_1280x720.png</figcaption></figure></div>
+</section>
+
+<!-- A -->
+<section class="opt" data-choice="title_a" data-choice-group="title" data-choice-label="A · 붓 자국 로고">
+  <h2>A · 붓 자국 로고 — 로고가 주인공</h2>
+  <p class="cap">하늘을 가로지르는 무지개 붓 자국 위에 큰 로고를 얹고, 로딩은 붓이 줄을 칠해 나가며, 시작 안내는 붓 밑줄이 그려지는 손글씨 한 줄입니다.</p>
+  <div class="vp"><div class="scr a">
+    <div class="scene"><div class="sky"></div><div class="tone"></div><div class="far"></div><div class="haze"></div>
+      <div class="whale" style="left:calc(50% - 640px);top:392px">
+        <img class="w" src="img/assets_world_whale_v4.png" alt="">
+        <img class="kid" src="img/assets_brand_title_yuna.png" alt="유나" style="left:350px;top:-150px;height:300px">
+        <img class="kid" src="img/assets_brand_title_mio.png" alt="미오" style="left:510px;top:-140px;height:290px">
+        <img class="kid" src="img/assets_brand_title_ciel.png" alt="시엘" style="left:660px;top:-150px;height:300px">
+        <img class="kid" src="img/assets_brand_title_karen.png" alt="카렌" style="left:820px;top:-150px;height:300px">
+      </div>
+      <div class="wisp" style="left:10%;bottom:40px;width:520px;animation-duration:22s"></div><div class="wisp" style="left:62%;bottom:12px;width:640px;animation-duration:30s"></div>
+    </div>
+    <div class="fx" data-sparks="34"></div><div class="fx" data-flecks="26"></div><div class="fx"><div class="ray"></div></div>
+    <div class="grain"></div><div class="vign"></div><div class="shade"></div>
+    <div class="lg">
+      <svg class="sw" viewBox="0 0 900 170" aria-hidden="true">
+        <path d="M60 110 C220 66 420 74 580 84 S800 96 850 70" fill="none" stroke="url(#rb)" stroke-width="66" stroke-linecap="round" filter="url(#paint)" opacity=".92"/>
+        <path class="shim" d="M60 110 C220 66 420 74 580 84 S800 96 850 70" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="18" stroke-linecap="round" filter="url(#paint)"/>
+        <path d="M250 112 q4 22 0 30 q-6 6 -8 -2 q0 -12 8 -28z M640 116 q5 16 1 24 q-6 5 -8 -2 q0 -10 7 -22z" fill="#a68cff" opacity=".85"/>
+      </svg>
+      <span class="w1">레인보우</span>
+      <span class="w2">아틀리에</span>
+      <svg class="brush" aria-hidden="true"><use href="#brush"/></svg>
+      <span class="subt">하늘을 물들이는 소녀들</span>
+    </div>
+    <div class="ld ldA">
+      <svg viewBox="0 0 620 44" aria-hidden="true">
+        <path d="M14 24 Q300 20 606 25" fill="none" stroke="rgba(46,35,80,.6)" stroke-width="16" stroke-linecap="round" filter="url(#paint)"/>
+        <path d="M14 24 Q220 21 440 24" fill="none" stroke="url(#rb)" stroke-width="16" stroke-linecap="round" filter="url(#paint)"/>
+        <use href="#brush" x="290" y="11" width="150" height="26" transform="rotate(24 440 24)" style="color:#7cc8ff"/>
+      </svg>
+      <div class="meta"><span>하늘에 색을 입히는 중…</span><span>72%</span></div>
+      <div class="tip">팁 · 같은 색 아이 둘이면 결속 효과가 생겨요</div>
+    </div>
+    <div class="go goA">
+      <span class="t"><i class="drop" style="--c:#ff8aa8;left:-60px"></i>화면을 터치해 색칠 시작<i class="drop" style="--c:#7cc8ff;right:-60px;animation-delay:1.3s"></i></span>
+      <svg viewBox="0 0 460 26" aria-hidden="true"><path class="draw" d="M10 16 C120 6 300 6 450 14" fill="none" stroke="url(#rb)" stroke-width="8" stroke-linecap="round" filter="url(#paint)"/></svg>
+    </div>
+    <div class="ver">v0.6</div>
+  </div></div>
+</section>
+
+<!-- B -->
+<section class="opt" data-choice="title_b" data-choice-group="title" data-choice-label="B · 팔레트 엠블럼">
+  <h2>B · 팔레트 엠블럼 — 아이들이 주인공</h2>
+  <p class="cap">고래와 아이들을 화면 오른쪽에 크게 두고 로고는 왼쪽 위 팔레트 엠블럼으로 줄였으며, 로딩은 팔레트 물감 칸이 하나씩 차고, 시작은 출렁이는 물감 방울입니다.</p>
+  <div class="vp"><div class="scr b">
+    <div class="scene"><div class="sky" style="background-position:30% center"></div><div class="tone"></div><div class="far"></div><div class="haze" style="left:20%"></div>
+      <div class="whale" style="left:calc(100% - 1130px);top:300px;width:1240px">
+        <img class="w" src="img/assets_world_whale_v4.png" alt="">
+        <img class="kid" src="img/assets_brand_title_yuna.png" alt="유나" style="left:370px;top:-185px;height:345px">
+        <img class="kid" src="img/assets_brand_title_mio.png" alt="미오" style="left:550px;top:-175px;height:335px">
+        <img class="kid" src="img/assets_brand_title_ciel.png" alt="시엘" style="left:720px;top:-185px;height:345px">
+        <img class="kid" src="img/assets_brand_title_karen.png" alt="카렌" style="left:895px;top:-185px;height:345px">
+      </div>
+      <div class="wisp" style="left:40%;bottom:20px;width:700px;animation-duration:26s"></div>
+    </div>
+    <div class="fx" data-sparks="30"></div><div class="fx" data-flecks="22"></div><div class="fx"><div class="ray"></div></div>
+    <div class="grain"></div><div class="vign"></div>
+    <div class="fx" style="background:linear-gradient(90deg,rgba(40,28,90,.55),transparent 45%)"></div>
+    <div class="lg">
+      <svg class="pal" viewBox="0 0 210 158" aria-hidden="true">
+        <path d="M104 8 C166 8 202 42 200 82 C198 122 158 148 112 146 C88 145 90 122 68 120 C48 118 42 140 22 127 C0 112 6 60 32 35 C50 18 76 8 104 8 Z" fill="#fff6e2" stroke="#d9a52b" stroke-width="4"/>
+        <circle cx="52" cy="98" r="13" fill="#e8dcbf" stroke="#cdbf9c" stroke-width="2"/>
+        <circle class="well on" cx="62" cy="48" r="14" style="--c:#ff8aa8"/>
+        <circle class="well on" cx="98" cy="32" r="14" style="--c:#ffb36b"/>
+        <circle class="well on" cx="136" cy="32" r="14" style="--c:#ffe07a"/>
+        <circle class="well on" cx="170" cy="50" r="14" style="--c:#8fe0a6"/>
+        <circle class="well on" cx="182" cy="84" r="14" style="--c:#7cc8ff"/>
+        <circle class="well" cx="164" cy="116" r="14" style="--c:#a68cff"/>
+        <circle class="well" cx="128" cy="126" r="14" style="--c:#e49cff"/>
+        <use href="#brush" x="40" y="66" width="150" height="26" transform="rotate(-18 115 79)" style="color:#e49cff"/>
+      </svg>
+      <div class="wm">
+        <span class="w1">레인보우</span>
+        <span class="w2">아틀리에</span>
+        <svg class="stroke" viewBox="0 0 330 16" aria-hidden="true"><path d="M6 9 C90 3 230 4 324 9" stroke="url(#rb)" stroke-width="9" stroke-linecap="round" fill="none" filter="url(#paint)"/></svg>
+        <span class="subt">하늘을 물들이는 소녀들</span>
+      </div>
+    </div>
+    <div class="ld ldB">물감을 섞는 중 · 5 / 7<div class="rail"><i></i></div><div class="tip">팁 · 같은 색 아이 둘이면 결속 효과가 생겨요</div></div>
+    <div class="go goB">
+      <span class="ring"></span>
+      <svg viewBox="0 0 250 150" aria-hidden="true"><path d="M40 34 C80 4 170 2 214 30 C246 52 244 104 210 124 C176 146 98 150 56 130 C14 112 6 58 40 34 Z" fill="url(#blob)" filter="url(#paint)"/><ellipse cx="88" cy="44" rx="28" ry="10" fill="rgba(255,255,255,.55)" transform="rotate(-14 88 44)"/></svg>
+      <span class="t">터치해서 시작<small>TOUCH</small></span>
+    </div>
+    <div class="ver">v0.6</div>
+  </div></div>
+</section>
+
+<!-- C -->
+<section class="opt" data-choice="title_c" data-choice-group="title" data-choice-label="C · 물드는 하늘">
+  <h2>C · 물드는 하늘 — 세계(이야기)가 주인공</h2>
+  <p class="cap">로딩이 진행될수록 잿빛 화면이 왼쪽부터 수채처럼 물들어(경계선 = 로딩 막대) 로고까지 색이 차오르고, 다 물들면 꽃처럼 번지는 물감 사이로 시작 안내가 뜹니다.</p>
+  <div class="vp"><div class="scr c">
+    <div class="scene col"><div class="sky"></div><div class="tone"></div><div class="far"></div><div class="haze"></div>
+      <div class="whale" style="left:calc(50% - 660px);top:372px;width:1280px">
+        <img class="w" src="img/assets_world_whale_v4.png" alt="">
+        <img class="kid" src="img/assets_brand_title_yuna.png" alt="유나" style="left:395px;top:-168px;height:330px">
+        <img class="kid" src="img/assets_brand_title_mio.png" alt="미오" style="left:575px;top:-158px;height:320px">
+        <img class="kid" src="img/assets_brand_title_ciel.png" alt="시엘" style="left:745px;top:-168px;height:330px">
+        <img class="kid" src="img/assets_brand_title_karen.png" alt="카렌" style="left:925px;top:-168px;height:330px">
+      </div>
+      <div class="wisp" style="left:5%;bottom:30px;width:560px;animation-duration:24s"></div><div class="wisp" style="left:58%;bottom:6px;width:620px;animation-duration:32s"></div>
+    </div>
+    <div class="wet"></div>
+    <div class="fx" data-sparks="40"></div><div class="fx" data-flecks="30"></div>
+    <div class="grain"></div><div class="vign"></div><div class="shade"></div>
+    <div class="lg"><div class="tx g">레인보우 아틀리에</div><div class="tx col">레인보우 아틀리에</div><span class="subt">하늘을 물들이는 소녀들</span></div>
+    <div class="ld"><span class="chip">72%</span><div class="ldC">잿빛 하늘을 물들이는 중…  ·  팁: 같은 색 아이 둘이면 결속 효과가 생겨요</div></div>
+    <div class="go goC"><span class="t"><i class="bloom" style="--c:rgba(255,154,181,.75);left:0"></i><i class="bloom" style="--c:rgba(134,205,255,.75);left:100%;animation-delay:1.2s"></i><i class="bloom" style="--c:rgba(255,226,138,.7);left:50%;animation-delay:2.4s"></i>터치하면 하늘이 물들어요</span></div>
+    <div class="ver">v0.6</div>
+  </div></div>
+</section>
+
+<h3>부제 고르기</h3>
+<p class="lead">로고 아래 줄입니다. 고르면 위 세 시안의 부제가 바로 바뀝니다.</p>
+<div class="subs">
+  <section class="opt" data-choice="sub_1" data-choice-group="subtitle" data-sub="하늘을 물들이는 소녀들"><div class="mini"><b>레인보우 아틀리에</b><span>하늘을 물들이는 소녀들</span></div><p class="note">1 · 이야기형 — 아이들이 하늘에 색을 칠한다는 설정을 바로 말합니다.</p></section>
+  <section class="opt" data-choice="sub_2" data-choice-group="subtitle" data-sub="잿빛 하늘에 색을 칠하다"><div class="mini"><b>레인보우 아틀리에</b><span>잿빛 하늘에 색을 칠하다</span></div><p class="note">2 · 문장형 — 회색 → 색의 대비를 한 문장으로, 가장 그림 같습니다.</p></section>
+  <section class="opt" data-choice="sub_3" data-choice-group="subtitle" data-sub="색을 되찾는 방치형 RPG"><div class="mini"><b>레인보우 아틀리에</b><span>색을 되찾는 방치형 RPG</span></div><p class="note">3 · 장르형 — 스토어에서 무슨 게임인지 바로 알 수 있습니다.</p></section>
+  <section class="opt" data-choice="sub_4" data-choice-group="subtitle" data-sub="구름고래 위의 작은 화실"><div class="mini"><b>레인보우 아틀리에</b><span>구름고래 위의 작은 화실</span></div><p class="note">4 · 장소형 — 고래 위 화실이라는 무대를 살려 예전 이름(구름고래)도 이어 갑니다.</p></section>
+</div>
+</main>
+<script>
+const fit=()=>document.querySelectorAll('.vp').forEach(v=>{const s=v.querySelector('.scr');const k=v.clientWidth/s.offsetWidth;s.style.transform=`scale(${k})`;v.style.height=s.offsetHeight*k+'px'});
+let lastW=0;new ResizeObserver(()=>{const w=document.body.clientWidth;if(w!==lastW){lastW=w;requestAnimationFrame(fit)}}).observe(document.body);
+document.querySelectorAll('.bar [data-res]').forEach(b=>b.addEventListener('click',()=>{document.documentElement.style.setProperty('--w',b.dataset.res);document.querySelectorAll('.bar [data-res]').forEach(x=>x.setAttribute('aria-pressed',x===b));fit()}));
+document.querySelectorAll('.bar [data-st]').forEach(b=>b.addEventListener('click',()=>{document.body.className=b.dataset.st;document.querySelectorAll('.bar [data-st]').forEach(x=>x.setAttribute('aria-pressed',x===b))}));
+document.querySelectorAll('.opt').forEach(o=>o.addEventListener('click',()=>{document.querySelectorAll(`.opt[data-choice-group="${o.dataset.choiceGroup}"]`).forEach(x=>x.classList.toggle('sel',x===o));if(o.dataset.sub)document.querySelectorAll('.scr .subt').forEach(s=>s.textContent=o.dataset.sub)}));
+let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+document.querySelectorAll('[data-sparks]').forEach(el=>{for(let i=0;i<+el.dataset.sparks;i++){const p=document.createElement('i');p.className='spk';p.style.cssText=`left:${rnd()*100}%;top:${rnd()*100}%;animation-delay:${-rnd()*6}s;animation-duration:${4+rnd()*5}s;--z:${.5+rnd()*1.2}`;el.appendChild(p)}});
+const hues=['#ff8aa8','#ffb36b','#ffe07a','#8fe0a6','#7cc8ff','#a68cff','#e49cff'];
+document.querySelectorAll('[data-flecks]').forEach(el=>{for(let i=0;i<+el.dataset.flecks;i++){const p=document.createElement('i');p.className='flk';p.style.cssText=`left:${rnd()*100}%;top:${20+rnd()*80}%;--c:${hues[i%7]};animation-delay:${-rnd()*9}s;animation-duration:${7+rnd()*6}s;--z:${.6+rnd()*1.1}`;el.appendChild(p)}});
+document.querySelectorAll('.c .scene.col').forEach(s=>{const g=s.cloneNode(true);g.classList.replace('col','grey');g.querySelectorAll('img').forEach(i=>i.alt='');g.setAttribute('aria-hidden','true');s.after(g)});
+document.querySelector('.subs .opt').classList.add('sel');
+if(location.hash==='#load')document.querySelector('.bar [data-st="st-load"]').click();
+fit();
+</script>
+</body>
+</html>
